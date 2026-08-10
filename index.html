@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>にほんご活字堂 / Nihongo Reboot Lab — 120 Questions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Spectral:ital,wght@0,500;0,600;1,500&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15130E;
+    --ink-panel:#1D1A13;
+    --ink-panel-2:#242017;
+    --hairline:#3B3527;
+    --brass:#C9A24B;
+    --brass-bright:#E6C578;
+    --brass-dim:#8A7239;
+    --text:#EDE7D6;
+    --text-mute:#A69B84;
+    --good:#8AA37B;
+    --good-bg:#242C20;
+    --bad:#BE6A50;
+    --bad-bg:#2E2119;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 800px at 15% -10%, rgba(201,162,75,.07), transparent 60%),
+      radial-gradient(900px 700px at 110% 10%, rgba(201,162,75,.05), transparent 60%),
+      var(--ink);
+    color:var(--text);
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    min-height:100vh;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .jp{ font-family:'Zen Kaku Gothic New', sans-serif; }
+  .jp-display{ font-family:'Shippori Mincho', serif; }
+  .romaji{ font-family:'Spectral', serif; font-style:italic; }
+
+  #app{ max-width:640px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; padding-bottom:24px; }
+
+  header.topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:16px 20px 14px;
+    border-bottom:1px solid var(--hairline);
+  }
+  .brand{ display:flex; align-items:baseline; gap:10px; min-width:0; }
+  .brand .mark{ color:var(--brass); font-size:20px; letter-spacing:.14em; flex-shrink:0; }
+  .brand .name{ font-family:'Shippori Mincho', serif; font-size:15px; letter-spacing:.02em; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .brand .sub{ font-size:9px; color:var(--text-mute); letter-spacing:.12em; white-space:nowrap; }
+  .header-actions{ display:flex; align-items:center; gap:6px; flex-shrink:0; }
+
+  .lang-toggle{ display:flex; border:1px solid var(--hairline); border-radius:20px; overflow:hidden; flex-shrink:0; }
+  .lang-toggle button{
+    background:none; border:none; color:var(--text-mute);
+    font-family:'Zen Kaku Gothic New',sans-serif; font-size:11px; letter-spacing:.05em; font-weight:700;
+    padding:6px 12px; cursor:pointer;
+  }
+  .lang-toggle button.active{ background:var(--brass); color:#1A160E; }
+
+  .icon-btn{
+    background:none;border:1px solid var(--hairline); color:var(--brass);
+    font-size:14px; width:32px; height:32px; border-radius:50%; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .icon-btn:hover{ border-color:var(--brass-dim); }
+  .back-btn{
+    background:none;border:1px solid var(--hairline); color:var(--brass);
+    font-family:'Zen Kaku Gothic New',sans-serif; font-size:12px; letter-spacing:.05em;
+    padding:7px 12px; border-radius:3px; cursor:pointer; flex-shrink:0;
+  }
+  .back-btn:hover{ border-color:var(--brass-dim); }
+
+  .screen{ flex:1; display:none; flex-direction:column; padding:22px 20px 8px; animation:fadeIn .28s ease; }
+  .screen.active{ display:flex; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .hero{ margin-bottom:22px; }
+  .hero .eyebrow{ color:var(--brass); font-size:11px; letter-spacing:.2em; margin-bottom:6px; }
+  .hero h1{ font-family:'Shippori Mincho', serif; font-size:23px; margin:0 0 8px; line-height:1.45; }
+  .hero p{ color:var(--text-mute); font-size:13px; line-height:1.8; margin:0; }
+
+  .weak-cta{
+    display:flex; align-items:center; justify-content:space-between;
+    background:linear-gradient(135deg, #2A2115, #241B10);
+    border:1px solid var(--brass-dim); border-radius:6px; padding:14px 16px; margin-bottom:22px; cursor:pointer;
+  }
+  .weak-cta:hover{ border-color:var(--brass); }
+  .weak-cta .wl-title{ font-size:14px; color:var(--brass-bright); font-weight:700; }
+  .weak-cta .wl-sub{ font-size:11px; color:var(--text-mute); margin-top:3px; }
+  .weak-cta .wl-count{ font-family:'Spectral',serif; font-size:26px; color:var(--brass); }
+
+  .unit-list{ display:flex; flex-direction:column; gap:10px; }
+  .unit-row{
+    display:flex; align-items:center; gap:14px;
+    background:var(--ink-panel); border:1px solid var(--hairline);
+    border-radius:6px; padding:13px 14px; cursor:pointer;
+    transition:border-color .15s, transform .15s;
+  }
+  .unit-row:hover{ border-color:var(--brass-dim); transform:translateX(2px); }
+  .unit-seal{
+    width:42px; height:42px; border-radius:50%; border:1.5px solid var(--brass-dim);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Spectral',serif; font-size:15px; color:var(--brass); flex-shrink:0;
+  }
+  .unit-seal.mastered{ border-color:var(--brass); background:rgba(201,162,75,.12); color:var(--brass-bright); }
+  .unit-body{ flex:1; min-width:0; }
+  .unit-theme{ font-size:14px; font-weight:700; color:var(--text); }
+  .unit-particle{
+    display:inline-block; font-family:'Spectral',serif; font-size:10.5px; color:var(--brass);
+    border:1px solid var(--brass-dim); border-radius:3px; padding:1px 6px; margin-top:4px;
+  }
+  .unit-desc{ font-size:11px; color:var(--text-mute); margin-top:4px; line-height:1.5; }
+  .unit-track{ height:3px; background:var(--hairline); border-radius:2px; margin-top:8px; overflow:hidden; }
+  .unit-fill{ height:100%; background:var(--brass); border-radius:2px; transition:width .3s; }
+  .unit-count{ font-family:'Spectral',serif; font-size:12px; color:var(--text-mute); white-space:nowrap; }
+
+  .lesson-progress{ display:flex; gap:5px; margin-bottom:22px; flex-wrap:wrap; }
+  .dot{ width:100%; max-width:22px; flex:1; height:5px; border-radius:3px; background:var(--hairline); }
+  .dot.done{ background:var(--brass-dim); }
+  .dot.now{ background:var(--brass); }
+  .dot.wrong{ background:var(--bad); }
+
+  .step-label{ color:var(--brass); font-size:11px; letter-spacing:.2em; margin-bottom:10px; }
+  .q-unit-tag{ color:var(--text-mute); font-size:11px; margin-bottom:2px; }
+
+  .listen-stage{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px; padding:30px 0 10px; }
+  .speaker-btn{
+    width:104px; height:104px; border-radius:50%; border:1.5px solid var(--brass);
+    background:radial-gradient(circle at 35% 30%, #2A2314, #1B1710);
+    color:var(--brass-bright); font-size:34px;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative;
+  }
+  .speaker-btn.playing{ animation:pulse 1.1s ease-in-out infinite; }
+  @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(201,162,75,.35);} 70%{box-shadow:0 0 0 18px rgba(201,162,75,0);} 100%{box-shadow:0 0 0 0 rgba(201,162,75,0);} }
+  .listen-hint{ color:var(--text-mute); font-size:12px; text-align:center; letter-spacing:.03em; }
+  .listen-count{ font-size:11px; color:var(--brass-dim); }
+
+  .primary-btn{
+    background:var(--brass); color:#1A160E; border:none; font-weight:700;
+    font-family:'Zen Kaku Gothic New',sans-serif; font-size:14px; letter-spacing:.03em;
+    padding:13px 22px; border-radius:5px; cursor:pointer; width:100%;
+  }
+  .primary-btn:disabled{ background:var(--hairline); color:var(--text-mute); cursor:not-allowed; }
+  .primary-btn:not(:disabled):hover{ background:var(--brass-bright); }
+  .ghost-btn{
+    background:none; border:1px solid var(--hairline); color:var(--text-mute);
+    font-family:'Zen Kaku Gothic New',sans-serif; font-size:13px; padding:11px 18px;
+    border-radius:5px; cursor:pointer; width:100%;
+  }
+  .ghost-btn:hover{ border-color:var(--brass-dim); color:var(--brass); }
+
+  /* fill-in-blank sentence */
+  .blank-sentence{
+    font-family:'Zen Kaku Gothic New',sans-serif; font-size:22px; line-height:2;
+    text-align:center; padding:26px 10px; margin-bottom:22px;
+    background:var(--ink-panel); border:1px solid var(--hairline); border-radius:8px;
+    letter-spacing:.02em;
+  }
+  .blank-sentence .slot{
+    display:inline-block; min-width:44px; border-bottom:2px solid var(--brass);
+    color:var(--brass-dim); margin:0 4px;
+  }
+  .blank-sentence .slot.filled{ color:var(--brass-bright); }
+
+  .choice-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:18px; }
+  .choice{
+    background:var(--ink-panel); border:1px solid var(--hairline); border-radius:6px;
+    padding:14px 16px; font-size:16px; cursor:pointer; text-align:center;
+    font-family:'Spectral',serif;
+  }
+  .choice:hover{ border-color:var(--brass-dim); }
+  .choice.correct{ border-color:var(--good); background:var(--good-bg); color:var(--good); }
+  .choice.wrong{ border-color:var(--bad); background:var(--bad-bg); color:var(--bad); }
+  .choice.disabled{ pointer-events:none; opacity:.55; }
+
+  .assembly-line{
+    min-height:66px; border:1px dashed var(--hairline); border-radius:6px;
+    display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:12px;
+    margin-bottom:18px; background:rgba(0,0,0,.15);
+  }
+  .assembly-line.filled{ border-style:solid; border-color:var(--brass-dim); }
+  .assembly-placeholder{ color:var(--text-mute); font-size:12px; letter-spacing:.05em; }
+  .type-block{
+    font-family:'Zen Kaku Gothic New',sans-serif; font-size:16px;
+    background:linear-gradient(180deg,#2C2718,#211D12);
+    border:1px solid var(--brass-dim); color:var(--brass-bright);
+    padding:9px 14px; border-radius:3px; cursor:pointer; user-select:none;
+    box-shadow: inset 0 0 0 1px rgba(230,197,120,.06);
+  }
+  .type-block:hover{ border-color:var(--brass); }
+  .type-block.placed{ opacity:.3; cursor:default; }
+  .type-block.used-slot{
+    background:linear-gradient(180deg,#332B17,#251F10); border-color:var(--brass); color:var(--text);
+  }
+  .type-pool{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+  .assembly-caption{ font-size:11px; color:var(--text-mute); margin:-10px 0 16px; letter-spacing:.03em; }
+
+  .reveal-card{
+    background:var(--ink-panel); border:1px solid var(--hairline); border-radius:8px;
+    padding:22px 20px; margin-bottom:16px;
+  }
+  .reveal-jp{ font-family:'Zen Kaku Gothic New',sans-serif; font-size:23px; line-height:1.7; color:var(--brass-bright); margin-bottom:6px; }
+  .reveal-romaji{ font-family:'Spectral',serif; font-style:italic; font-size:13px; color:var(--brass-dim); margin-bottom:12px; }
+  .reveal-meaning{ font-size:13px; color:var(--text-mute); margin-bottom:14px; }
+  .reveal-tip{ border-top:1px solid var(--hairline); padding-top:12px; font-size:12.5px; line-height:1.8; color:var(--text); }
+  .reveal-tip b{ color:var(--brass); }
+  .reveal-tip .tip-lang-note{ font-size:10px; color:var(--text-mute); display:block; margin-top:6px; }
+  .replay-row{ display:flex; gap:10px; margin-bottom:8px; }
+  .replay-row .speaker-mini{
+    width:44px; height:44px; border-radius:50%; border:1px solid var(--brass-dim);
+    background:var(--ink-panel-2); color:var(--brass); font-size:16px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+
+  .complete-wrap{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; }
+  .complete-seal{
+    width:90px; height:90px; border-radius:50%; border:2px solid var(--brass);
+    display:flex; align-items:center; justify-content:center; font-family:'Shippori Mincho',serif;
+    font-size:15px; color:var(--brass-bright); margin-bottom:18px; box-shadow:0 0 0 5px rgba(201,162,75,.08);
+  }
+  .complete-title{ font-family:'Shippori Mincho',serif; font-size:19px; margin-bottom:6px; }
+  .complete-score{ font-family:'Spectral',serif; font-size:36px; color:var(--brass); margin:10px 0 4px; }
+  .complete-meta{ font-size:12px; color:var(--text-mute); margin-bottom:26px; }
+  .complete-actions{ display:flex; flex-direction:column; gap:10px; width:100%; max-width:280px; }
+
+  footer.credit{ text-align:center; font-size:10px; color:var(--text-mute); opacity:.6; padding:18px 0 4px; letter-spacing:.05em; }
+
+  .modal-overlay{ position:fixed; inset:0; background:rgba(10,9,6,.7); z-index:50; display:none; align-items:flex-end; justify-content:center; }
+  .modal-overlay.open{ display:flex; }
+  .modal-sheet{
+    width:100%; max-width:640px; background:var(--ink-panel); border-top:1px solid var(--brass-dim);
+    border-radius:14px 14px 0 0; padding:22px 22px 28px; animation:slideUp .25s ease;
+  }
+  @keyframes slideUp{ from{transform:translateY(24px); opacity:0;} to{transform:translateY(0); opacity:1;} }
+  .modal-title{ font-family:'Shippori Mincho',serif; font-size:17px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; }
+  .modal-title .close-x{ cursor:pointer; color:var(--text-mute); font-size:18px; }
+  .setting-row{ margin-bottom:20px; }
+  .setting-label{ font-size:12px; color:var(--text-mute); margin-bottom:8px; display:flex; justify-content:space-between; }
+  .setting-label span.val{ color:var(--brass); font-family:'Spectral',serif; }
+  input[type=range]{ -webkit-appearance:none; width:100%; height:4px; border-radius:2px; background:var(--hairline); outline:none; }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--brass); cursor:pointer; border:2px solid var(--ink);
+  }
+  select.voice-select{
+    width:100%; background:var(--ink-panel-2); color:var(--text); border:1px solid var(--hairline);
+    border-radius:5px; padding:10px 12px; font-size:13px; font-family:'Zen Kaku Gothic New',sans-serif;
+  }
+  .speed-presets{ display:flex; gap:8px; margin-top:10px; }
+  .speed-presets button{
+    flex:1; background:var(--ink-panel-2); border:1px solid var(--hairline); color:var(--text-mute);
+    border-radius:5px; padding:8px 4px; font-size:11px; cursor:pointer;
+  }
+  .speed-presets button.active{ border-color:var(--brass); color:var(--brass-bright); }
+  .voice-warn{ font-size:11px; color:var(--text-mute); margin-top:8px; line-height:1.6; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="mark">活</span>
+      <div style="min-width:0;">
+        <div class="name" id="brandName">にほんご活字堂</div>
+        <div class="sub" id="brandSub">JAPANESE FOR FILIPINOS · N5 · 120Q</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="lang-toggle">
+        <button id="langTlBtn" class="active">TL</button>
+        <button id="langEnBtn">EN</button>
+      </div>
+      <button class="icon-btn" id="settingsBtn" title="Voice settings">⚙</button>
+      <button class="back-btn" id="headerBackBtn" style="display:none;"></button>
+    </div>
+  </header>
+
+  <!-- HOME -->
+  <section class="screen active" id="screen-home">
+    <div class="hero">
+      <div class="eyebrow" id="heroEyebrow">JOSHI FOCUS · 5-STEP NA PARAAN</div>
+      <h1 id="heroTitle">Simulan ang Nihongo<br>mula sa mismong ugat.</h1>
+      <p id="heroDesc">Pakinggan → Piliin ang joshi (助詞) → Ayusin → Bigkasin. 12 tanong bawat unit, 3-5 minuto lang. 10 unit, 120 tanong na nakatuon sa mga particle na madalas malito ang mga nagsisimula.</p>
+    </div>
+
+    <div class="weak-cta" id="weakCta" style="display:none;">
+      <div>
+        <div class="wl-title" id="weakTitle">Weak Point Review</div>
+        <div class="wl-sub" id="weakSub">Balikan lang ang mga tanong na na-miss mo</div>
+      </div>
+      <div class="wl-count" id="weakCount">0</div>
+    </div>
+
+    <div class="unit-list" id="unitList"></div>
+
+    <footer class="credit">EdTech Nihongo family · Yoshida EdTech Works</footer>
+  </section>
+
+  <!-- LESSON -->
+  <section class="screen" id="screen-lesson">
+    <div class="q-unit-tag" id="lessonUnitTag"></div>
+    <div class="lesson-progress" id="progressDots"></div>
+
+    <!-- STEP 1 -->
+    <div id="step1" class="step-pane">
+      <div class="step-label" id="step1Label">STEP 1</div>
+      <div class="listen-stage">
+        <button class="speaker-btn" id="playBtn">▶</button>
+        <div class="listen-hint" id="listenHint"></div>
+        <div class="listen-count" id="listenCount"></div>
+      </div>
+      <button class="primary-btn" id="toStep2Btn" disabled></button>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="step2" class="step-pane" style="display:none;">
+      <div class="step-label" id="step2Label">STEP 2</div>
+      <div class="blank-sentence" id="blankSentence"></div>
+      <div class="choice-list" id="choiceList"></div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="step3" class="step-pane" style="display:none;">
+      <div class="step-label" id="step3Label">STEP 3</div>
+      <div class="assembly-line" id="assemblyLine"></div>
+      <div class="assembly-caption" id="assemblyCaption"></div>
+      <div class="type-pool" id="typePool"></div>
+      <button class="ghost-btn" id="resetChunksBtn"></button>
+    </div>
+
+    <!-- STEP 4 -->
+    <div id="step4" class="step-pane" style="display:none;">
+      <div class="step-label" id="step4Label">STEP 4</div>
+      <div class="reveal-card">
+        <div class="replay-row">
+          <button class="speaker-mini" id="replayBtn">▶</button>
+        </div>
+        <div class="reveal-jp jp" id="revealJp"></div>
+        <div class="reveal-romaji romaji" id="revealRomaji"></div>
+        <div class="reveal-meaning" id="revealMeaning"></div>
+        <div class="reveal-tip" id="revealTip"></div>
+      </div>
+      <button class="primary-btn" id="nextQBtn"></button>
+    </div>
+  </section>
+
+  <!-- UNIT COMPLETE -->
+  <section class="screen" id="screen-complete">
+    <div class="complete-wrap">
+      <div class="complete-seal" id="completeSealText">済</div>
+      <div class="complete-title" id="completeUnitName"></div>
+      <div class="complete-score" id="completeScore"></div>
+      <div class="complete-meta" id="completeMeta"></div>
+      <div class="complete-actions">
+        <button class="primary-btn" id="retryWrongBtn" style="display:none;"></button>
+        <button class="ghost-btn" id="toHomeBtn"></button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settingsOverlay">
+  <div class="modal-sheet">
+    <div class="modal-title"><span id="settingsTitle">Voice Settings</span><span class="close-x" id="closeSettings">✕</span></div>
+    <div class="setting-row">
+      <div class="setting-label"><span id="speedLabel">Bilis ng Boses</span><span class="val" id="speedVal">0.90x</span></div>
+      <input type="range" id="speedRange" min="0.5" max="1.3" step="0.05" value="0.90">
+      <div class="speed-presets">
+        <button data-speed="0.65" id="spdSlow"></button>
+        <button data-speed="0.90" id="spdNormal" class="active"></button>
+        <button data-speed="1.1" id="spdFast"></button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label" id="voiceLabel">Boses (Japanese)</div>
+      <select class="voice-select" id="voiceSelect"></select>
+      <div class="voice-warn" id="voiceWarn"></div>
+    </div>
+    <button class="primary-btn" id="testVoiceBtn">▶ Test</button>
+  </div>
+</div>
+
+<script>
+/* ==================== DATA ==================== */
+const QUESTIONS = [{"id": "u01_q01", "unit": 1, "level": "Beginner (初級)", "target_ja": "わたしは たろーです。", "romaji": "Watashi wa Taro desu.", "tl_meaning": "Ako si Taro.", "en_meaning": "I am Taro.", "blank_q": "わたし ␣ たろーです。", "options": ["は (wa)", "が (ga)", "に (ni)"], "chunks": ["わたしは", "たろー", "です。"], "tip_tl": "Gamitin ang 'は (wa)' para ipakilala ang paksa o sarili (Ako ay...).", "correct": 0}, {"id": "u01_q02", "unit": 1, "level": "Beginner (初級)", "target_ja": "わたしは フィリピンじん です。", "romaji": "Watashi wa Firipin-jin desu.", "tl_meaning": "Pilipino ako.", "en_meaning": "I am Filipino.", "blank_q": "わたし ␣ フィリピンじん です。", "options": ["は (wa)", "を (o)", "で (de)"], "chunks": ["わたしは", "フィリピンじん", "です。"], "tip_tl": "Ang 'は (wa)' ay pampandaigdigang particle para sa 'topic' ng pangungusap.", "correct": 0}, {"id": "u01_q03", "unit": 1, "level": "Beginner (初級)", "target_ja": "マニラは あついです。", "romaji": "Manila wa atsui desu.", "tl_meaning": "Mainit sa Manila.", "en_meaning": "Manila is hot.", "blank_q": "マニラ ␣ あついです。", "options": ["は (wa)", "に (ni)", "へ (e)"], "chunks": ["マニラは", "あつい", "です。"], "tip_tl": "Gamitin ang 'は (wa)' kapag naglalarawan ng isang lugar o bagay.", "correct": 0}, {"id": "u01_q04", "unit": 1, "level": "Beginner (初級)", "target_ja": "かれは せんせいです。", "romaji": "Kare wa sensei desu.", "tl_meaning": "Guro siya.", "en_meaning": "He is a teacher.", "blank_q": "かれ ␣ せんせいです。", "options": ["は (wa)", "が (ga)", "と (to)"], "chunks": ["かれは", "せんせい", "です。"], "tip_tl": "Ang 'かれ (He)' ay ang topic kaya 'は' ang kasunod.", "correct": 0}, {"id": "u01_q05", "unit": 1, "level": "Beginner (初級)", "target_ja": "これは にほんごの ほん です。", "romaji": "Kore wa Nihongo no hon desu.", "tl_meaning": "Librong Hapones ito.", "en_meaning": "This is a Japanese book.", "blank_q": "これ ␣ にほんごの ほん", "options": ["は (wa)", "で (de)", "に (ni)"], "chunks": ["これは", "にほんごの", "ほん", "です。"], "tip_tl": "Gagamitin ang 'の (no)' para i-connect ang dalawang noun (Nihongo + hon).", "correct": 0}, {"id": "u01_q06", "unit": 1, "level": "Beginner (初級)", "target_ja": "わたしも エンジニア です。", "romaji": "Watashi mo enjinia desu.", "tl_meaning": "Inhenyero rin ako.", "en_meaning": "I am also an engineer.", "blank_q": "わたし ␣ エンジニア です。", "options": ["も (mo)", "は (wa)", "を (o)"], "chunks": ["わたしも", "エンジニア", "です。"], "tip_tl": "Gamitin ang 'も (mo)' para sa 'rin / din' (also / too).", "correct": 0}, {"id": "u01_q07", "unit": 1, "level": "Beginner (初級)", "target_ja": "おなまえは なんですか？", "romaji": "Onamae wa nan desu ka?", "tl_meaning": "Ano ang pangalan mo?", "en_meaning": "What is your name?", "blank_q": "おなまえ ␣ なんですか？", "options": ["は (wa)", "に (ni)", "が (ga)"], "chunks": ["おなまえは", "なん", "ですか？"], "tip_tl": "Kapag nagtatanong ng pangalan, 'は (wa)' ang ginagamit sa paksa.", "correct": 0}, {"id": "u01_q08", "unit": 1, "level": "Beginner (初級)", "target_ja": "これは わたしの かばんです。", "romaji": "Kore wa watashi no kaban desu.", "tl_meaning": "Bag ko ito.", "en_meaning": "This is my bag.", "blank_q": "わたし ␣ かばん", "options": ["の (no)", "は (wa)", "で (de)"], "chunks": ["これは", "わたしの", "かばんです。"], "tip_tl": "Ang 'の (no)' ay nagpapakita ng pagmamay-ari (my bag = watashi no kaban).", "correct": 0}, {"id": "u01_q09", "unit": 1, "level": "Beginner (初級)", "target_ja": "やまださんは にほんじんです。", "romaji": "Yamada-san wa Nihon-jin desu.", "tl_meaning": "Hapones si G. Yamada.", "en_meaning": "Mr. Yamada is Japanese.", "blank_q": "やまださん ␣ にほんじん です。", "options": ["は (wa)", "に (ni)", "を (o)"], "chunks": ["やまださんは", "にほんじん", "です。"], "tip_tl": "Gagamitin ang 'さん (san)' para sa paggalang sa pangalan ng ibang tao.", "correct": 0}, {"id": "u01_q10", "unit": 1, "level": "Beginner (初級)", "target_ja": "きょうは げつようびです。", "romaji": "Kyou wa getsuyoubi desu.", "tl_meaning": "Lunes ngayon.", "en_meaning": "Today is Monday.", "blank_q": "きょう ␣ げつようびです。", "options": ["は (wa)", "が (ga)", "で (de)"], "chunks": ["きょうは", "げつようび", "です。"], "tip_tl": "Para sa araw o petsa bilang paksa, gamitin ang 'は (wa)'.", "correct": 0}, {"id": "u01_q11", "unit": 1, "level": "Beginner (初級)", "target_ja": "わたしは がくせいではありません。", "romaji": "Watashi wa gakusei dewa arimasen.", "tl_meaning": "Hindi ako estudyante.", "en_meaning": "I am not a student.", "blank_q": "がくせい ␣ ありません", "options": ["では (dewa)", "に (ni)", "を (o)"], "chunks": ["わたしは", "がくせい", "では", "ありません。"], "tip_tl": "Ang 'では ありません (dewa arimasen)' ay ang negatibong anyo ng 'です'.", "correct": 0}, {"id": "u01_q12", "unit": 1, "level": "Beginner (初級)", "target_ja": "あのかたは だれですか？", "romaji": "Ano kata wa dare desu ka?", "tl_meaning": "Sino ang taong iyon?", "en_meaning": "Who is that person?", "blank_q": "あのかた ␣ だれですか？", "options": ["は (wa)", "が (ga)", "に (ni)"], "chunks": ["あのかたは", "だれ", "ですか？"], "tip_tl": "Ang 'あのかた (ano kata)' ay magalang na salita para sa 'taong iyon'.", "correct": 0}, {"id": "u02_q01", "unit": 2, "level": "Beginner (初級)", "target_ja": "マニラに すんでいます。", "romaji": "Manila ni sunde imasu.", "tl_meaning": "Nakatira ako sa Manila.", "en_meaning": "I live in Manila.", "blank_q": "マニラ ␣ すんでいます。", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["わたしは", "マニラに", "すんでいます。"], "tip_tl": "Tandaan: Pag 'すんでいます' (live), LAGING 'に (ni)' ang gamit sa lugar.", "correct": 0}, {"id": "u02_q02", "unit": 2, "level": "Beginner (初級)", "target_ja": "へやに たろーさんが います。", "romaji": "Heya ni Taro-san ga imasu.", "tl_meaning": "Nasa kuwarto si Taro.", "en_meaning": "Taro is in the room.", "blank_q": "へや ␣ たろーさんが います。", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["へやに", "たろーさんが", "います。"], "tip_tl": "Gamitin ang 'に (ni)' para sa lokasyon kung nasaan ang tao (exist).", "correct": 0}, {"id": "u02_q03", "unit": 2, "level": "Beginner (初級)", "target_ja": "つくえの うえに ほんが あります。", "romaji": "Tsukue no ue ni hon ga arimasu.", "tl_meaning": "May libro sa ibabaw ng lamesa.", "en_meaning": "There is a book on the table.", "blank_q": "つくえの うえ ␣ ほんが あります。", "options": ["に (ni)", "で (de)", "は (wa)"], "chunks": ["つくえの", "うえに", "ほんが", "あります。"], "tip_tl": "Gamitin ang 'あります' para sa bagay (non-living), at 'に' sa lugar.", "correct": 0}, {"id": "u02_q04", "unit": 2, "level": "Beginner (初級)", "target_ja": "こうえんに ねこが います。", "romaji": "Kouen ni neko ga imasu.", "tl_meaning": "May pusa sa parke.", "en_meaning": "There is a cat in the park.", "blank_q": "こうえん ␣ ねこが います。", "options": ["に (ni)", "へ (e)", "を (o)"], "chunks": ["こうえんに", "ねこが", "います。"], "tip_tl": "Gamitin ang 'います' para sa hayop o tao (living things).", "correct": 0}, {"id": "u02_q05", "unit": 2, "level": "Beginner (初級)", "target_ja": "がっこうは どこに ありますか？", "romaji": "Gakkou wa doko ni arimasu ka?", "tl_meaning": "Nasaan ang paaralan?", "en_meaning": "Where is the school?", "blank_q": "どこ ␣ ありますか？", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["がっこうは", "どこに", "ありますか？"], "tip_tl": "Kapag nagtatanong ng lokasyon: 'どこに ありますか / いますか'.", "correct": 0}, {"id": "u02_q06", "unit": 2, "level": "Beginner (初級)", "target_ja": "えきの まえに コンビニが あります。", "romaji": "Eki no mae ni konbini ga arimasu.", "tl_meaning": "May convenience store sa harap ng istasyon.", "en_meaning": "There is a convenience store in front of the station.", "blank_q": "えきの まえ ␣ コンビニが あります。", "options": ["に (ni)", "で (de)", "へ (e)"], "chunks": ["えきの", "まえに", "コンビニが", "あります。"], "tip_tl": "Ang 'まえ (mae)' ay ibig sabihin ay harap.", "correct": 0}, {"id": "u02_q07", "unit": 2, "level": "Beginner (初級)", "target_ja": "かばんの なかに さいふが あります。", "romaji": "Kaban no naka ni saifu ga arimasu.", "tl_meaning": "May pitaka sa loob ng bag.", "en_meaning": "There is a wallet inside the bag.", "blank_q": "かばんの なか ␣ さいふが あります。", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["かばんの", "なかに", "さいふが", "あります。"], "tip_tl": "Ang 'なか (naka)' ay ibig sabihin ay loob.", "correct": 0}, {"id": "u02_q08", "unit": 2, "level": "Beginner (初級)", "target_ja": "うけつけに だれが いますか？", "romaji": "Uketsuke ni dare ga imasu ka?", "tl_meaning": "Sino ang nasa reception?", "en_meaning": "Who is at the reception?", "blank_q": "うけつけ ␣ だれが いますか？", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["うけつけに", "だれが", "いますか？"], "tip_tl": "Ang 'うけつけ (uketsuke)' ay reception counter.", "correct": 0}, {"id": "u02_q09", "unit": 2, "level": "Beginner (初級)", "target_ja": "デパートの となりに びょういんが あります。", "romaji": "Depaato no tonari ni byouin ga arimasu.", "tl_meaning": "May ospital sa tabi ng department store.", "en_meaning": "There is a hospital next to the department store.", "blank_q": "デパートの となり ␣ びょういんが あります。", "options": ["に (ni)", "で (de)", "は (wa)"], "chunks": ["デパートの", "となりに行", "びょういんが", "あります。"], "tip_tl": "Ang 'となり (tonari)' ay ibig sabihin ay tabi.", "correct": 0}, {"id": "u02_q10", "unit": 2, "level": "Beginner (初級)", "target_ja": "わたしは いま いえに います。", "romaji": "Watashi wa ima ie ni imasu.", "tl_meaning": "Nasa bahay ako ngayon.", "en_meaning": "I am at home now.", "blank_q": "いえ ␣ います。", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["わたしは", "いま", "いえに", "います。"], "tip_tl": null, "correct": 0}, {"id": "u02_q11", "unit": 2, "level": "Beginner (初級)", "target_ja": "あそこに くるまが あります。", "romaji": "Asoko ni kuruma ga arimasu.", "tl_meaning": "May kotse doon.", "en_meaning": "There is a car over there.", "blank_q": "あそこ ␣ くるまが あります。", "options": ["に (ni)", "で (de)", "へ (e)"], "chunks": ["あそこに", "くるまが", "あります。"], "tip_tl": "Ang 'あそこ (asoko)' ay doon (over there).", "correct": 0}, {"id": "u02_q12", "unit": 2, "level": "Beginner (初級)", "target_ja": "ぎんこうの ちかくに ポストが あります。", "romaji": "Ginkou no chikaku ni posuto ga arimasu.", "tl_meaning": "May mailbox malapit sa bangko.", "en_meaning": "There is a mailbox near the bank.", "blank_q": "ぎんこうの ちかく ␣ ポストが あります。", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["ぎんこうの", "ちかくに", "ポストが", "あります。"], "tip_tl": "Ang 'ちかく (chikaku)' ay ibig sabihin ay malapit.", "correct": 0}, {"id": "u03_q01", "unit": 3, "level": "Beginner (初級)", "target_ja": "マニラで べんきょうします。", "romaji": "Manila de benkyou shimasu.", "tl_meaning": "Nag-aaral ako sa Manila.", "en_meaning": "I study in Manila.", "blank_q": "マニラ ␣ べんきょうします。", "options": ["で (de)", "に (ni)", "へ (e)"], "chunks": ["わたしは", "マニラで", "べんきょう", "します。"], "tip_tl": "Pag may ginagawang aksyon (study, eat, work) sa lugar, gamitin ang 'で (de)'.", "correct": 0}, {"id": "u03_q02", "unit": 3, "level": "Beginner (初級)", "target_ja": "レストランで ごはんを たべます。", "romaji": "Resutoran de gohan wo tabemasu.", "tl_meaning": "Kumakain ako ng pagkain sa restawran.", "en_meaning": "I eat food at a restaurant.", "blank_q": "レストラン ␣ ごはんを たべます。", "options": ["で (de)", "に (ni)", "を (o)"], "chunks": ["レストランで", "ごはんを", "たべます。"], "tip_tl": "Lugar ng aksyon = で, Bagay na kinakain = を.", "correct": 0}, {"id": "u03_q03", "unit": 3, "level": "Beginner (初級)", "target_ja": "うちで えいがを みます。", "romaji": "Uchi de eiga wo mimasu.", "tl_meaning": "Nanonood ako ng pelikula sa bahay.", "en_meaning": "I watch a movie at home.", "blank_q": "うち ␣ えいがを みます。", "options": ["で (de)", "に (ni)", "へ (e)"], "chunks": ["うちで", "えいがを", "みます。"], "tip_tl": "Nanonood sa bahay: 'うちで'.", "correct": 0}, {"id": "u03_q04", "unit": 3, "level": "Beginner (初級)", "target_ja": "としょかんで ほんを よみます。", "romaji": "Toshokan de hon wo yomimasu.", "tl_meaning": "Nagbabasa ako ng libro sa silid-aklatan.", "en_meaning": "I read a book at the library.", "blank_q": "としょかん ␣ ほんを よみます。", "options": ["で (de)", "に (ni)", "を (o)"], "chunks": ["としょかんで", "ほんを", "よみます。"], "tip_tl": "Nagbabasa sa library: 'としょかんで'.", "correct": 0}, {"id": "u03_q05", "unit": 3, "level": "Beginner (初級)", "target_ja": "かいしゃで はたらきます。", "romaji": "Kaisha de hatarakimasu.", "tl_meaning": "Nagtatrabaho ako sa kumpanya.", "en_meaning": "I work at a company.", "blank_q": "かいしゃ ␣ はたらきます。", "options": ["で (de)", "に (ni)", "へ (e)"], "chunks": ["かいしゃで", "はたらきます。", "Nagtatrabaho sa lugar: 'かいしゃで'."], "tip_tl": null, "correct": 0}, {"id": "u03_q06", "unit": 3, "level": "Beginner (初級)", "target_ja": "スーパーで やさいを かいます。", "romaji": "Suupaa de yasai wo kaimasu.", "tl_meaning": "Bumibili ako ng gulay sa supermarket.", "en_meaning": "I buy vegetables at the supermarket.", "blank_q": "スーパー ␣ やさいを かいます。", "options": ["で (de)", "に (ni)", "を (o)"], "chunks": ["スーパーで", "やさいを", "かいます。"], "tip_tl": "Bumibili sa lugar: 'スーパーで'.", "correct": 0}, {"id": "u03_q07", "unit": 3, "level": "Beginner (初級)", "target_ja": "こうえんで さんぽします。", "romaji": "Kouen de sanpo shimasu.", "tl_meaning": "Naglalakad-lakad ako sa parke.", "en_meaning": "I take a walk in the park.", "blank_q": "こうえん ␣ さんぽします。", "options": ["で (de)", "に (ni)", "へ (e)"], "chunks": ["こうえんで", "さんぽ", "します。"], "tip_tl": "Naglalakad sa lugar: 'こうえんで'.", "correct": 0}, {"id": "u03_q08", "unit": 3, "level": "Beginner (初級)", "target_ja": "カフェで コーヒーを のみます。", "romaji": "Kafe de koohii wo nomimasu.", "tl_meaning": "Umiinom ako ng kape sa cafe.", "en_meaning": "I drink coffee at a cafe.", "blank_q": "カフェ ␣ コーヒーを のみます。", "options": ["で (de)", "に (ni)", "を (o)"], "chunks": ["カフェで", "コーヒーを", "のみます。"], "tip_tl": "Umiinom ng kape: 'コーヒーを のみます'.", "correct": 0}, {"id": "u03_q09", "unit": 3, "level": "Beginner (初級)", "target_ja": "みせで ふくを えらびます。", "romaji": "Mise de fuku wo erabimasu.", "tl_meaning": "Pumipili ako ng服（ふく） sa tindahan.", "en_meaning": "I choose clothes at the store.", "blank_q": "みせ ␣ ふくを えらびます。", "options": ["で (de)", "に (ni)", "へ (e)"], "chunks": ["みせで", "ふくを", "えらびます。"], "tip_tl": "Pumipili sa tindahan: 'みせで'.", "correct": 0}, {"id": "u03_q10", "unit": 3, "level": "Beginner (初級)", "target_ja": "へやで おんがくを ききます。", "romaji": "Heya de ongaku wo kikimasu.", "tl_meaning": "Nakikinig ako ng musika sa kuwarto.", "en_meaning": "I listen to music in my room.", "blank_q": "へや ␣ おんがくを ききます。", "options": ["で (de)", "に (ni)", "を (o)"], "chunks": ["へやで", "おんがくを", "ききます。"], "tip_tl": "Nakikinig ng musika: 'おんがくを ききます'.", "correct": 0}, {"id": "u03_q11", "unit": 3, "level": "Beginner (初級)", "target_ja": "プールで およぎます。", "romaji": "Puuru de oyogimasu.", "tl_meaning": "Lumalangoy ako sa pool.", "en_meaning": "I swim in the pool.", "blank_q": "プール ␣ およぎます。", "options": ["で (de)", "に (ni)", "へ (e)"], "chunks": ["プールで", "およぎます。", "Lumalangoy sa lugar: 'プールで'."], "tip_tl": null, "correct": 0}, {"id": "u03_q12", "unit": 3, "level": "Beginner (初級)", "target_ja": "どこで たろーさんに あいますか？", "romaji": "Doko de Taro-san ni aimasu ka?", "tl_meaning": "Saan mo makikitain si Taro?", "en_meaning": "Where will you meet Taro?", "blank_q": "どこ ␣ あいますか？", "options": ["で (de)", "に (ni)", "を (o)"], "chunks": ["どこで", "たろーさんに", "あいますか？"], "tip_tl": "Kapag nagtatanong kung saan gagawin ang aksyon: 'どこで'.", "correct": 0}, {"id": "u04_q01", "unit": 4, "level": "Beginner (初級)", "target_ja": "とうきょうへ いきます。", "romaji": "Tokyo e ikimasu.", "tl_meaning": "Pupunta ako sa Tokyo.", "en_meaning": "I go to Tokyo.", "blank_q": "とうきょう ␣ いきます。", "options": ["へ (e)", "で (de)", "を (o)"], "chunks": ["わたしは", "とうきょうへ", "いきます。"], "tip_tl": "Ang 'へ (e)' o 'に (ni)' ay ginagamit para sa direksyon o pupuntahan.", "correct": 0}, {"id": "u04_q02", "unit": 4, "level": "Beginner (初級)", "target_ja": "がっこうに いきます。", "romaji": "Gakkou ni ikimasu.", "tl_meaning": "Papasok ako sa paaralan.", "en_meaning": "I go to school.", "blank_q": "がっこう ␣ いきます。", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["がっこうに", "いきます。", "Maaari ding gamitin ang 'に (ni)' sa halip na 'へ (e)' sa pupuntahan."], "tip_tl": null, "correct": 0}, {"id": "u04_q03", "unit": 4, "level": "Beginner (初級)", "target_ja": "フィリピンへ かえります。", "romaji": "Firipin e kaerimasu.", "tl_meaning": "Uuuwi ako sa Pilipinas.", "en_meaning": "I will return to the Philippines.", "blank_q": "フィリピン ␣ かえります。", "options": ["へ (e)", "で (de)", "を (o)"], "chunks": ["フィリピンへ", "かえります。", "Pag-uwi sa sariling bansa o bahay: 'かえります'."], "tip_tl": null, "correct": 0}, {"id": "u04_q04", "unit": 4, "level": "Beginner (初級)", "target_ja": "たろーさんが うちに きます。", "romaji": "Taro-san ga uchi ni kimasu.", "tl_meaning": "Pupunta/Darating si Taro sa bahay.", "en_meaning": "Taro comes to my house.", "blank_q": "うち ␣ きます。", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["たろーさんが", "うちに", "きます。"], "tip_tl": "Papunta sa kinaroroonan ng nagsasalita: 'きます'.", "correct": 0}, {"id": "u04_q05", "unit": 4, "level": "Beginner (初級)", "target_ja": "どこへ いきますか？", "romaji": "Doko e ikimasu ka?", "tl_meaning": "Saan ka pupunta?", "en_meaning": "Where are you going?", "blank_q": "どこ ␣ いきますか？", "options": ["へ (e)", "で (de)", "を (o)"], "chunks": ["どこへ", "いきますか？", "Kapag nagtatanong ng pupuntahan: 'どこへ / どこに'."], "tip_tl": null, "correct": 0}, {"id": "u04_q06", "unit": 4, "level": "Beginner (初級)", "target_ja": "どこにも いきません。", "romaji": "Doko ni mo ikimasen.", "tl_meaning": "Hindi ako pupunta kahit saan.", "en_meaning": "I'm not going anywhere.", "blank_q": "どこ ␣ いきません。", "options": ["にも (ni mo)", "で (de)", "を (o)"], "chunks": ["どこにも", "いきません。", "Kahit saan (negatibo): 'どこにも いきません'."], "tip_tl": null, "correct": 0}, {"id": "u04_q07", "unit": 4, "level": "Beginner (初級)", "target_ja": "びょういんへ いかなければなりません。", "romaji": "Byouin e ikanakereba narimasen.", "tl_meaning": "Kailangan kong pumunta sa ospital.", "en_meaning": "I must go to the hospital.", "blank_q": "びょういん ␣ いかなければ", "options": ["へ (e)", "で (de)", "を (o)"], "chunks": ["びょういんへ", "いかなければ", "なりません。"], "tip_tl": "Pupunta sa ospital: 'びょういんへ'.", "correct": 0}, {"id": "u04_q08", "unit": 4, "level": "Beginner (初級)", "target_ja": "えきまで あるきます。", "romaji": "Eki made arukimasu.", "tl_meaning": "Maglalakad ako hanggang istasyon.", "en_meaning": "I walk to the station.", "blank_q": "えき ␣ あるきます。", "options": ["まで (made)", "で (de)", "を (o)"], "chunks": ["えきまで", "あるきます。", "Hanggang sa dulo o hangganan: 'まで (made)'."], "tip_tl": null, "correct": 0}, {"id": "u04_q09", "unit": 4, "level": "Beginner (初級)", "target_ja": "ともだちの いえへ あそびに 行（い）きます。", "romaji": "Tomodachi no ie e asobi ni ikimasu.", "tl_meaning": "Pupunta ako sa bahay ng kaibigan para mamasyal.", "en_meaning": "I go to my friend's house to hang out.", "blank_q": "ともだちの いえ ␣ いきます。", "options": ["へ (e)", "で (de)", "を (o)"], "chunks": ["ともだちの", "いえへ", "あそびに", "いきます。"], "tip_tl": "Magsaya/Mamasyal: 'あそびに いきます'.", "correct": 0}, {"id": "u04_q10", "unit": 4, "level": "Beginner (初級)", "target_ja": "デパートへ かいものに いきます。", "romaji": "Depaato e kaimono ni ikimasu.", "tl_meaning": "Pupunta ako sa department store para mamili.", "en_meaning": "I go to the department store for shopping.", "blank_q": "デパート ␣ かいものに", "options": ["へ (e)", "で (de)", "を (o)"], "chunks": ["デパートへ", "かいものに", "いきます。"], "tip_tl": "Layunin ng pagpunta: 'かいものに いきます'.", "correct": 0}, {"id": "u04_q11", "unit": 4, "level": "Beginner (初級)", "target_ja": "くうこうへ ともだちを むかえに いきます。", "romaji": "Kuukou e tomodachi wo mukae ni ikimasu.", "tl_meaning": "Pupunta ako sa paliparan para sunduin ang kaibigan.", "en_meaning": "I go to the airport to pick up my friend.", "blank_q": "くうこう ␣ むかえに", "options": ["へ (e)", "で (de)", "を (o)"], "chunks": ["くうこうへ", "ともだちを", "むかえに", "いきます。"], "tip_tl": "Sunduin: 'むかえに いきます'.", "correct": 0}, {"id": "u04_q12", "unit": 4, "level": "Beginner (初級)", "target_ja": "きょうとへ りょこうします。", "romaji": "Kyoto e ryokou shimasu.", "tl_meaning": "Maglalakbay ako papuntang Kyoto.", "en_meaning": "I will travel to Kyoto.", "blank_q": "きょうと ␣ りょこうします。", "options": ["へ (e)", "で (de)", "を (o)"], "chunks": ["きょうとへ", "りょこう", "します。"], "tip_tl": "Maglakbay sa lugar: 'きょうとへ りょこうします'.", "correct": 0}, {"id": "u05_q01", "unit": 5, "level": "Beginner (初級)", "target_ja": "７じに おきます。", "romaji": "Shichi-ji ni okimasu.", "tl_meaning": "Gumigising ako ng 7 o'clock.", "en_meaning": "I wake up at 7 o'clock.", "blank_q": "７じ ␣ おきます。", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["わたしは", "まいあさ", "７じに", "おきます。"], "tip_tl": "Gamitin ang 'に (ni)' para sa tiyak na oras.", "correct": 0}, {"id": "u05_q02", "unit": 5, "level": "Beginner (初級)", "target_ja": "９じから ５じまで はたらきます。", "romaji": "Ku-ji kara go-ji made hatarakimasu.", "tl_meaning": "Nagtatrabaho ako mula 9 o'clock hanggang 5 o'clock.", "en_meaning": "I work from 9 to 5.", "blank_q": "９じ ␣ ５じまで", "options": ["から (kara)", "に (ni)", "で (de)"], "chunks": ["９じから", "５じまで", "はたらきます。"], "tip_tl": "Mula sa oras: 'から (kara)', Hanggang: 'まで (made)'.", "correct": 0}, {"id": "u05_q03", "unit": 5, "level": "Beginner (初級)", "target_ja": "にちようびに テニスを します。", "romaji": "Nichiyoubi ni tenisu wo shimasu.", "tl_meaning": "Magtetenis ako sa Linggo.", "en_meaning": "I play tennis on Sunday.", "blank_q": "にちようび ␣ テニスを", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["にちようびに", "テニスを", "します。"], "tip_tl": "Araw ng linggo + に: 'にちようびに'.", "correct": 0}, {"id": "u05_q04", "unit": 5, "level": "Beginner (初級)", "target_ja": "あした やすみます。", "romaji": "Ashita yasumimasu.", "tl_meaning": "Magpapahinga ako bukas.", "en_meaning": "I will rest tomorrow.", "blank_q": "あした ␣ やすみます。", "options": ["（なし）", "に (ni)", "で (de)"], "chunks": ["わたしは", "あした", "やすみます。"], "tip_tl": "Tandaan: Ang mga salitang tulad ng 'あした (tomorrow)', 'きょう (today)' ay WALANG 'に'.", "correct": 0}, {"id": "u05_q05", "unit": 5, "level": "Beginner (初級)", "target_ja": "なんじに ねますか？", "romaji": "Nan-ji ni nemasu ka?", "tl_meaning": "Anong oras ka natutulog?", "en_meaning": "What time do you go to bed?", "blank_q": "なんじ ␣ ねますか？", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["なんじに", "ねますか？", "Anong oras: 'なんじに'."], "tip_tl": null, "correct": 0}, {"id": "u05_q06", "unit": 5, "level": "Beginner (初級)", "target_ja": "８がつに フィリピンへ かえります。", "romaji": "Hachi-gatsu ni Firipin e kaerimasu.", "tl_meaning": "Uuwi ako sa Pilipinas sa Agosto.", "en_meaning": "I will return to the Philippines in August.", "blank_q": "８がつ ␣ かえります。", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["８がつに", "フィリピンへ", "かえります。"], "tip_tl": "Buwan + に: '８がつに'.", "correct": 0}, {"id": "u05_q07", "unit": 5, "level": "Beginner (初級)", "target_ja": "まいあさ ６じはんに おきます。", "romaji": "Maiasa roku-ji han ni okimasu.", "tl_meaning": "Gumigising ako ng 6:30 tuwing umaga.", "en_meaning": "I wake up at 6:30 every morning.", "blank_q": "６じはん ␣ おきます。", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["まいあさ", "６じはんに", "おきます。"], "tip_tl": "Kalahating oras (30 mins): 'はん (han)'.", "correct": 0}, {"id": "u05_q08", "unit": 5, "level": "Beginner (初級)", "target_ja": "ひるやすみは １２じからです。", "romaji": "Hiruyasumi wa juu-ni-ji kara desu.", "tl_meaning": "Ang tanghalian ay simula 12 o'clock.", "en_meaning": "Lunch break is from 12 o'clock.", "blank_q": "１２じ ␣ です。", "options": ["から (kara)", "に (ni)", "まで (made)"], "chunks": ["ひるやすみは", "１２じから", "です。"], "tip_tl": "Nagsisimula sa: '〜からです'.", "correct": 0}, {"id": "u05_q09", "unit": 5, "level": "Beginner (初級)", "target_ja": "テストは きんようびまでです。", "romaji": "Tesuto wa kin'youbi made desu.", "tl_meaning": "Ang pagsusulit ay hanggang Biyernes.", "en_meaning": "The test is until Friday.", "blank_q": "きんようび ␣ です。", "options": ["まで (made)", "に (ni)", "から (kara)"], "chunks": ["テストは", "きんようびまで", "です。"], "tip_tl": "Hanggang sa araw: '〜までです'.", "correct": 0}, {"id": "u05_q10", "unit": 5, "level": "Beginner (初級)", "target_ja": "らいしゅうの どようびに あいましょう。", "romaji": "Raishuu no doyoubi ni aimashou.", "tl_meaning": "Magkita tayo sa Sabado sa susunod na linggo.", "en_meaning": "Let's meet next Saturday.", "blank_q": "どようび ␣ あいましょう。", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["らいしゅうの", "どようびに", "あいましょう。"], "tip_tl": "Magkita tayo: 'あいましょう'.", "correct": 0}, {"id": "u05_q11", "unit": 5, "level": "Beginner (初級)", "target_ja": "たんじょうびは １０がつ １５にちです。", "romaji": "Tanjoubi wa juu-gatsu juu-go-nichi desu.", "tl_meaning": "Ang kaarawan ko ay Oktubre 15.", "en_meaning": "My birthday is October 15th.", "blank_q": "１０がつ １５にち ␣ です。", "options": ["（なし）", "に (ni)", "で (de)"], "chunks": ["たんじょうびは", "１０がつ", "１５にちです。"], "tip_tl": "Kapag sinabing 'A ay B desu', walang 'に' sa dulo ng petsa.", "correct": 0}, {"id": "u05_q12", "unit": 5, "level": "Beginner (初級)", "target_ja": "いつ にほんに きましたか？", "romaji": "Itsu Nihon ni kimashita ka?", "tl_meaning": "Kailan ka dumating sa Hapon?", "en_meaning": "When did you come to Japan?", "blank_q": "いつ ␣ きましたか？", "options": ["（なし）", "に (ni)", "で (de)"], "chunks": ["いつ", "にほんに", "きましたか？"], "tip_tl": "Tandaan: Ang 'いつ (itsu / when)' ay HINDI nilalagyan ng 'に'.", "correct": 0}, {"id": "u06_q01", "unit": 6, "level": "Beginner (初級)", "target_ja": "はしで たべます。", "romaji": "Hashi de tabemasu.", "tl_meaning": "Kumakain ako gamit ang chopsticks.", "en_meaning": "I eat with chopsticks.", "blank_q": "はし ␣ たべます。", "options": ["で (de)", "に (ni)", "と (to)"], "chunks": ["はしで", "ごはんを", "たべます。"], "tip_tl": "Ang 'で (de)' ay ginagamit para sa kasangkapan o utensil (by / using).", "correct": 0}, {"id": "u06_q02", "unit": 6, "level": "Beginner (初級)", "target_ja": "バスで かいしゃへ いきます。", "romaji": "Basu de kaisha e ikimasu.", "tl_meaning": "Pumapasok ako sa kumpanya sakay ng bus.", "en_meaning": "I go to the company by bus.", "blank_q": "バス ␣ いきます。", "options": ["で (de)", "に (ni)", "へ (e)"], "chunks": ["バスで", "かいしゃへ", "いきます。"], "tip_tl": "Paraan ng transportasyon = で (by bus).", "correct": 0}, {"id": "u06_q03", "unit": 6, "level": "Beginner (初級)", "target_ja": "たろーさんと ごはんを たべます。", "romaji": "Taro-san to gohan wo tabemasu.", "tl_meaning": "Kumakain ako kasama si Taro.", "en_meaning": "I eat with Taro.", "blank_q": "たろーさん ␣ たべます。", "options": ["と (to)", "で (de)", "に (ni)"], "chunks": ["たろーさんと", "ごはんを", "たべます。"], "tip_tl": "Kasama ang tao = と (with Taro).", "correct": 0}, {"id": "u06_q04", "unit": 6, "level": "Beginner (初級)", "target_ja": "にほんごで はなします。", "romaji": "Nihongo de hanashimasu.", "tl_meaning": "Nagsasalita ako sa wikang Hapones.", "en_meaning": "I speak in Japanese.", "blank_q": "にほんご ␣ はなします。", "options": ["で (de)", "に (ni)", "を (o)"], "chunks": ["にほんごで", "はなします。", "Wikang ginagamit = で (in Japanese)."], "tip_tl": null, "correct": 0}, {"id": "u06_q05", "unit": 6, "level": "Beginner (初級)", "target_ja": "ケータイで しゃしんを とります。", "romaji": "Keetai de shashin wo torimasu.", "tl_meaning": "Kumuha ako ng litrato gamit ang cellphone.", "en_meaning": "I take photos with a phone.", "blank_q": "ケータイ ␣ とります。", "options": ["で (de)", "に (ni)", "を (o)"], "chunks": ["ケータイで", "しゃしんを", "とりまさ。"], "tip_tl": "Gamit na kagamitan = で.", "correct": 0}, {"id": "u06_q06", "unit": 6, "level": "Beginner (初級)", "target_ja": "ひとりであそびます。", "romaji": "Hitori de asobimasu.", "tl_meaning": "Naglalaro ako nang mag-isa.", "en_meaning": "I play alone.", "blank_q": "ひとり ␣ あそびます。", "options": ["で (de)", "と (to)", "に (ni)"], "chunks": ["わたしは", "ひとりりで", "あそびます。"], "tip_tl": "Mag-isa = ひとりりで (by oneself).", "correct": 0}, {"id": "u06_q07", "unit": 6, "level": "Beginner (初級)", "target_ja": "ペンで なまえを かきます。", "romaji": "Pen de namae wo kakimasu.", "tl_meaning": "Isinusulat ko ang pangalan gamit ang bolpen.", "en_meaning": "I write my name with a pen.", "blank_q": "ペン ␣ かきます。", "options": ["で (de)", "に (ni)", "を (o)"], "chunks": ["ペンで", "なまえを", "かきます。"], "tip_tl": "Pang-sulat = で.", "correct": 0}, {"id": "u06_q08", "unit": 6, "level": "Beginner (初級)", "target_ja": "かぞくと りょこうします。", "romaji": "Kazoku to ryokou shimasu.", "tl_meaning": "Maglalakbay ako kasama ang pamilya.", "en_meaning": "I travel with my family.", "blank_q": "かぞく ␣ りょこうします。", "options": ["と (to)", "で (de)", "に (ni)"], "chunks": ["かぞくと", "りょこう", "します。"], "tip_tl": "Kasamang pamilya = と.", "correct": 0}, {"id": "u06_q09", "unit": 6, "level": "Beginner (初級)", "target_ja": "はさみで かみを きります。", "romaji": "Hasami de kami wo kirimasu.", "tl_meaning": "Gugupitin ko ang papel gamit ang gunting.", "en_meaning": "I cut paper with scissors.", "blank_q": "はさみ ␣ きります。", "options": ["で (de)", "に (ni)", "を (o)"], "chunks": ["はさみで", "かみを", "きります。"], "tip_tl": "Gunting = はさみで.", "correct": 0}, {"id": "u06_q10", "unit": 6, "level": "Beginner (初級)", "target_ja": "だれと いきますか？", "romaji": "Dare to ikimasu ka?", "tl_meaning": "Kanino ka sasama pumunta?", "en_meaning": "Who are you going with?", "blank_q": "だれ ␣ いきますか？", "options": ["と (to)", "で (de)", "に (ni)"], "chunks": ["だれと", "いきますか？", "Kanino kasama: 'だれと'."], "tip_tl": null, "correct": 0}, {"id": "u06_q11", "unit": 6, "level": "Beginner (初級)", "target_ja": "タクシーで いえへ かえります。", "romaji": "Takushii de ie e kaerimasu.", "tl_meaning": "Uuuwi ako sa bahay sakay ng taksi.", "en_meaning": "I go home by taxi.", "blank_q": "タクシー ␣ かえります。", "options": ["で (de)", "に (ni)", "へ (e)"], "chunks": ["タクシーで", "いえへ", "かえります。"], "tip_tl": "Sasakyan = タクシーで.", "correct": 0}, {"id": "u06_q12", "unit": 6, "level": "Beginner (初級)", "target_ja": "えいごで メールを おくります。", "romaji": "Eigo de meeru wo okurimasu.", "tl_meaning": "Magpapadala ako ng email sa Ingles.", "en_meaning": "I send an email in English.", "blank_q": "えいご ␣ おくります。", "options": ["で (de)", "に (ni)", "を (o)"], "chunks": ["えいごで", "メールを", "おくります。"], "tip_tl": "Wika ng email = えいごで.", "correct": 0}, {"id": "u07_q01", "unit": 7, "level": "Beginner (初級)", "target_ja": "みずが ほしいです。", "romaji": "Mizu ga hoshii desu.", "tl_meaning": "Gusto ko ng tubig.", "en_meaning": "I want water.", "blank_q": "みず ␣ ほしいです。", "options": ["が (ga)", "を (o)", "に (ni)"], "chunks": ["わたしは", "みずが", "ほしいです。"], "tip_tl": "Pag 'ほしい (want)', ang particle ay 'が (ga)', hindi 'を'.", "correct": 0}, {"id": "u07_q02", "unit": 7, "level": "Beginner (初級)", "target_ja": "すしが すきです。", "romaji": "Sushi ga suki desu.", "tl_meaning": "Gusto ko ng sushi.", "en_meaning": "I like sushi.", "blank_q": "すし ␣ すきです。", "options": ["が (ga)", "を (o)", "に (ni)"], "chunks": ["わたしは", "すしが", "すきです。"], "tip_tl": "Pag 'すき (like)', ang particle ay 'が (ga)'.", "correct": 0}, {"id": "u07_q03", "unit": 7, "level": "Beginner (初級)", "target_ja": "スポーツが すきではありません。", "romaji": "Supootsu ga suki dewa arimasen.", "tl_meaning": "Hindi ko gusto ang isports.", "en_meaning": "I don't like sports.", "blank_q": "スポーツ ␣ すきではありません。", "options": ["が (ga)", "を (o)", "に (ni)"], "chunks": ["スポーツが", "すきでは", "ありません。"], "tip_tl": "Negatibo ng gusto: 'すきではありません'.", "correct": 0}, {"id": "u07_q04", "unit": 7, "level": "Beginner (初級)", "target_ja": "あたらしい くるまが ほしいです。", "romaji": "Atarashii kuruma ga hoshii desu.", "tl_meaning": "Gusto ko ng bagong kotse.", "en_meaning": "I want a new car.", "blank_q": "くるま ␣ ほしいです。", "options": ["が (ga)", "を (o)", "で (de)"], "chunks": ["あたらしい", "くるまが", "ほしいです。"], "tip_tl": "Bagong kotse: 'あたらしい くるまが'.", "correct": 0}, {"id": "u07_q05", "unit": 7, "level": "Beginner (初級)", "target_ja": "なにが ほしいですか？", "romaji": "Nani ga hoshii desu ka?", "tl_meaning": "Ano ang gusto mo?", "en_meaning": "What do you want?", "blank_q": "なに ␣ ほしいですか？", "options": ["が (ga)", "を (o)", "に (ni)"], "chunks": ["なにが", "ほしいですか？", "Ano ang gusto: 'なにが ほしいですか'."], "tip_tl": null, "correct": 0}, {"id": "u07_q06", "unit": 7, "level": "Beginner (初級)", "target_ja": "いぬが だいすきです。", "romaji": "Inu ga daisuki desu.", "tl_meaning": "Paborito / Gustong-gusto ko ang aso.", "en_meaning": "I love dogs.", "blank_q": "いぬ ␣ だいすきです。", "options": ["が (ga)", "を (o)", "に (ni)"], "chunks": ["わたしは", "いぬが", "だいすきです。"], "tip_tl": "Gustong-gusto: 'だいすきです'.", "correct": 0}, {"id": "u07_q07", "unit": 7, "level": "Beginner (初級)", "target_ja": "たろーさんは コーヒーが すきです。", "romaji": "Taro-san wa koohii ga suki desu.", "tl_meaning": "Gusto ni Taro ang kape.", "en_meaning": "Taro likes coffee.", "blank_q": "コーヒー ␣ すきです。", "options": ["が (ga)", "を (o)", "に (ni)"], "chunks": ["たろーさんは", "コーヒーが", "すきです。"], "tip_tl": "Gusto ng ibang tao: 'コーヒーが すきです'.", "correct": 0}, {"id": "u07_q08", "unit": 7, "level": "Beginner (初級)", "target_ja": "にほんの たべものが すきですか？", "romaji": "Nihon no tabemono ga suki desu ka?", "tl_meaning": "Gusto mo ba ng pagkaing Hapones?", "en_meaning": "Do you like Japanese food?", "blank_q": "たべもの ␣ すきですか？", "options": ["が (ga)", "を (o)", "に (ni)"], "chunks": ["にほんの", "たべものが", "すきですか？"], "tip_tl": "Pagkain ng Hapon: 'にほんの たべもの'.", "correct": 0}, {"id": "u07_q09", "unit": 7, "level": "Beginner (初級)", "target_ja": "じかんが ありません。", "romaji": "Jikan ga arimasen.", "tl_meaning": "Wala akong oras.", "en_meaning": "I don't have time.", "blank_q": "じかん ␣ ありません。", "options": ["が (ga)", "を (o)", "に (ni)"], "chunks": ["わたしは", "じかんが", "ありません。"], "tip_tl": "Walang oras: 'じかんが ありません'.", "correct": 0}, {"id": "u07_q10", "unit": 7, "level": "Beginner (初級)", "target_ja": "おかねが ほしいです。", "romaji": "Okane ga hoshii desu.", "tl_meaning": "Gusto ko ng pera.", "en_meaning": "I want money.", "blank_q": "おかね ␣ ほしいです。", "options": ["が (ga)", "を (o)", "で (de)"], "chunks": ["わたしは", "おかねが", "ほしいです。"], "tip_tl": "Gusto ng pera: 'おかねが ほしいです'.", "correct": 0}, {"id": "u07_q11", "unit": 7, "level": "Beginner (初級)", "target_ja": "からい たべものが きらいです。", "romaji": "Karai tabemono ga kirai desu.", "tl_meaning": "Ayaw ko ng maahang na pagkain.", "en_meaning": "I dislike spicy food.", "blank_q": "たべもの ␣ きらいです。", "options": ["が (ga)", "を (o)", "に (ni)"], "chunks": ["からい", "たべものが", "きらいです。"], "tip_tl": "Ayaw (dislike): 'きらいです'.", "correct": 0}, {"id": "u07_q12", "unit": 7, "level": "Beginner (初級)", "target_ja": "どんな えいがが すきですか？", "romaji": "Donna eiga ga suki desu ka?", "tl_meaning": "Anong uri ng pelikula ang gusto mo?", "en_meaning": "What kind of movies do you like?", "blank_q": "えいが ␣ すきですか？", "options": ["が (ga)", "を (o)", "に (ni)"], "chunks": ["どんな", "えいがが", "すきですか？"], "tip_tl": "Anong uri: 'どんな 〜が'.", "correct": 0}, {"id": "u08_q01", "unit": 8, "level": "Beginner (初級)", "target_ja": "このまちは しずかです。", "romaji": "Kono machi wa shizuka desu.", "tl_meaning": "Tahimik ang bayan na ito.", "en_meaning": "This town is quiet.", "blank_q": "このまち ␣ しずかです。", "options": ["は (wa)", "に (ni)", "で (de)"], "chunks": ["このまちは", "しずか", "です。"], "tip_tl": "Ang 'しずか (shizuka)' ay na-adjective.", "correct": 0}, {"id": "u08_q02", "unit": 8, "level": "Beginner (初級)", "target_ja": "ふじさんは たかいです。", "romaji": "Fujisan wa takai desu.", "tl_meaning": "Mataas ang Bundok Fuji.", "en_meaning": "Mt. Fuji is high.", "blank_q": "ふじさん ␣ たかいです。", "options": ["は (wa)", "が (ga)", "に (ni)"], "chunks": ["ふじさんは", "たかい", "です。"], "tip_tl": "Ang 'たかい (takai)' ay i-adjective.", "correct": 0}, {"id": "u08_q03", "unit": 8, "level": "Beginner (初級)", "target_ja": "にほんごは おもしろいです。", "romaji": "Nihongo wa omoshiroi desu.", "tl_meaning": "Interesante ang wikang Hapones.", "en_meaning": "Japanese language is interesting.", "blank_q": "にほんご ␣ おもしろいです。", "options": ["は (wa)", "を (o)", "で (de)"], "chunks": ["にほんごは", "おもしろい", "です。"], "tip_tl": "Interesante: 'おもしろいです'.", "correct": 0}, {"id": "u08_q04", "unit": 8, "level": "Beginner (初級)", "target_ja": "きょうは ひまではありません。", "romaji": "Kyou wa huma dewa arimasen.", "tl_meaning": "Hindi ako libre / walang ginagawa ngayon.", "en_meaning": "I am not free today.", "blank_q": "きょう ␣ ひまではありません。", "options": ["は (wa)", "に (ni)", "で (de)"], "chunks": ["きょうは", "ひまでは", "ありません。"], "tip_tl": "Negatibo ng na-adjective: '〜ではありません'.", "correct": 0}, {"id": "u08_q05", "unit": 8, "level": "Beginner (初級)", "target_ja": "この へやは ひろいです。", "romaji": "Kono heya wa hiroi desu.", "tl_meaning": "Malawak ang kuwartong ito.", "en_meaning": "This room is spacious.", "blank_q": "この へや ␣ ひろいです。", "options": ["は (wa)", "が (ga)", "に (ni)"], "chunks": ["この", "へやは", "ひろいです。"], "tip_tl": "Malawak: 'ひろいです'.", "correct": 0}, {"id": "u08_q06", "unit": 8, "level": "Beginner (初級)", "target_ja": "あの レストランは ゆうめいです。", "romaji": "Ano resutoran wa yuumei desu.", "tl_meaning": "Sikat ang restawrang iyon.", "en_meaning": "That restaurant is famous.", "blank_q": "レストラン ␣ ゆうめいです。", "options": ["は (wa)", "に (ni)", "で (de)"], "chunks": ["あの", "レストランは", "ゆうめいです。"], "tip_tl": "Sikat: 'ゆうめいです' (na-adj).", "correct": 0}, {"id": "u08_q07", "unit": 8, "level": "Beginner (初級)", "target_ja": "おちゃは あついです。", "romaji": "Ocha wa atsui desu.", "tl_meaning": "Mainit ang tsaa.", "en_meaning": "The tea is hot.", "blank_q": "おちゃ ␣ あついです。", "options": ["は (wa)", "が (ga)", "を (o)"], "chunks": ["おちゃは", "あつい", "です。"], "tip_tl": "Mainit na inumin: 'あついです'.", "correct": 0}, {"id": "u08_q08", "unit": 8, "level": "Beginner (初級)", "target_ja": "この ほんは むずかしくないです。", "romaji": "Kono hon wa muzukashikunai desu.", "tl_meaning": "Hindi mahirap ang librong ito.", "en_meaning": "This book is not difficult.", "blank_q": "この ほん ␣ むずかしくないです。", "options": ["は (wa)", "に (ni)", "で (de)"], "chunks": ["この", "ほんは", "むずかしくないです。"], "tip_tl": "Negatibo ng i-adjective: '〜くないです'.", "correct": 0}, {"id": "u08_q09", "unit": 8, "level": "Beginner (初級)", "target_ja": "たろーさんは しんせつです。", "romaji": "Taro-san wa shinsetsu desu.", "tl_meaning": "Mabait si Taro.", "en_meaning": "Taro is kind.", "blank_q": "たろーさん ␣ しんせつです。", "options": ["は (wa)", "が (ga)", "に (ni)"], "chunks": ["たろーさんは", "しんせつ", "です。"], "tip_tl": "Mabait: 'しんせつです'.", "correct": 0}, {"id": "u08_q10", "unit": 8, "level": "Beginner (初級)", "target_ja": "わたしの へやは せまいです。", "romaji": "Watashi no heya wa semai desu.", "tl_meaning": "Maliit / Makitid ang kuwarto ko.", "en_meaning": "My room is small.", "blank_q": "へや ␣ せまいです。", "options": ["は (wa)", "が (ga)", "に (ni)"], "chunks": ["わたしの", "へやは", "せまいです。"], "tip_tl": "Makitid: 'せまいです'.", "correct": 0}, {"id": "u08_q11", "unit": 8, "level": "Beginner (初級)", "target_ja": "きょうは とても さむいです。", "romaji": "Kyou wa totemo samui desu.", "tl_meaning": "Napakalamig ngayon.", "en_meaning": "It is very cold today.", "blank_q": "きょう ␣ さむいです。", "options": ["は (wa)", "に (ni)", "で (de)"], "chunks": ["きょうは", "とても", "さむいです。"], "tip_tl": "Napakalamig: 'とても さむいです'.", "correct": 0}, {"id": "u08_q12", "unit": 8, "level": "Beginner (初級)", "target_ja": "この まちは にぎやかですか？", "romaji": "Kono machi wa nigiyaka desu ka?", "tl_meaning": "Masigla / Maingay ba ang bayan na ito?", "en_meaning": "Is this town lively?", "blank_q": "この まち ␣ にぎやかですか？", "options": ["は (wa)", "が (ga)", "に (ni)"], "chunks": ["この", "まちは", "にぎやかですか？"], "tip_tl": "Masigla: 'にぎやかですか'.", "correct": 0}, {"id": "u09_q01", "unit": 9, "level": "Beginner (初級)", "target_ja": "きのう きょうとに いきました。", "romaji": "Kinou Kyoto ni ikimashita.", "tl_meaning": "Pumunta ako sa Kyoto kahapon.", "en_meaning": "I went to Kyoto yesterday.", "blank_q": "きょうと ␣ いきました。", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["きのう", "きょうとに", "いきました。"], "tip_tl": "Nakaraang kilos: 'いきました'.", "correct": 0}, {"id": "u09_q02", "unit": 9, "level": "Beginner (初級)", "target_ja": "けさ ７じに おきました。", "romaji": "Kesa shichi-ji ni okimashita.", "tl_meaning": "Gumising ako ng 7 o'clock kaninang umaga.", "en_meaning": "I woke up at 7 this morning.", "blank_q": "７じ ␣ おきました。", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["けさ", "７じに", "おきました。"], "tip_tl": "Kaninang umaga: 'けさ'.", "correct": 0}, {"id": "u09_q03", "unit": 9, "level": "Beginner (初級)", "target_ja": "きのうの てんきは あめでした。", "romaji": "Kinou no tenki wa ame deshita.", "tl_meaning": "Ulan ang panahon kahapon.", "en_meaning": "Yesterday's weather was rainy.", "blank_q": "てんき ␣ あめでした。", "options": ["は (wa)", "が (ga)", "に (ni)"], "chunks": ["きのうの", "てんきは", "あめでした。"], "tip_tl": "Nakaraang estado ng noun: '〜でした'.", "correct": 0}, {"id": "u09_q04", "unit": 9, "level": "Beginner (初級)", "target_ja": "ゆうべ テストを べんきょうしました。", "romaji": "Yuube tesuto wo benkyou shimashita.", "tl_meaning": "Nag-aral ako para sa test kagabi.", "en_meaning": "I studied for the test last night.", "blank_q": "テスト ␣ べんきょうしました。", "options": ["を (o)", "に (ni)", "で (de)"], "chunks": ["ゆうべ", "テストを", "べんきょうしました。"], "tip_tl": "Kagabi: 'ゆうべ'.", "correct": 0}, {"id": "u09_q05", "unit": 9, "level": "Beginner (初級)", "target_ja": "きのうは ひまでした。", "romaji": "Kinou wa huma deshita.", "tl_meaning": "Libre ako kahapon.", "en_meaning": "I was free yesterday.", "blank_q": "きのう ␣ ひまでした。", "options": ["は (wa)", "に (ni)", "で (de)"], "chunks": ["きのうは", "ひまでした。", "Nakaraang estado ng na-adj: '〜でした'."], "tip_tl": null, "correct": 0}, {"id": "u09_q06", "unit": 9, "level": "Beginner (初級)", "target_ja": "えいがは おもしろかったです。", "romaji": "Eiga wa omoshirokatta desu.", "tl_meaning": "Naging interesado / Masaya ang pelikula.", "en_meaning": "The movie was interesting.", "blank_q": "えいが ␣ おもしろかったです。", "options": ["は (wa)", "が (ga)", "に (ni)"], "chunks": ["えいがは", "おもしろかったです。", "Nakaraang i-adj: '〜かったです'."], "tip_tl": null, "correct": 0}, {"id": "u09_q07", "unit": 9, "level": "Beginner (初級)", "target_ja": "あさは なにも たべませんでした。", "romaji": "Asa wa nani mo tabemasen deshita.", "tl_meaning": "Hindi ako kumain ng kahit ano kaninang umaga.", "en_meaning": "I didn't eat anything this morning.", "blank_q": "なにも ␣ たべませんでした。", "options": ["（なし）", "を (o)", "に (ni)"], "chunks": ["あさは", "なにも", "たべませんでした。"], "tip_tl": "Kahit ano (negatibo): 'なにも たべませんでした'.", "correct": 0}, {"id": "u09_q08", "unit": 9, "level": "Beginner (初級)", "target_ja": "きのう たろーさんに あいました。", "romaji": "Kinou Taro-san ni aimashita.", "tl_meaning": "Nakitain ko si Taro kahapon.", "en_meaning": "I met Taro yesterday.", "blank_q": "たろーさん ␣ あいました。", "options": ["に (ni)", "を (o)", "で (de)"], "chunks": ["きのう", "たろーさんに", "あいました。"], "tip_tl": "Nakitain ang tao: '〜さんに あいました'.", "correct": 0}, {"id": "u09_q09", "unit": 9, "level": "Beginner (初級)", "target_ja": "せんしゅうの やすみは たのしかったです。", "romaji": "Senshuu no yasumi wa tanoshikatta desu.", "tl_meaning": "Masaya ang bakasyon noong nakaraang linggo.", "en_meaning": "Last week's holiday was fun.", "blank_q": "やすみ ␣ たのしかったです。", "options": ["は (wa)", "が (ga)", "に (ni)"], "chunks": ["せんしゅうの", "やすみは", "たのしかったです。"], "tip_tl": "Nakaraang linggo: 'せんしゅう'.", "correct": 0}, {"id": "u09_q10", "unit": 9, "level": "Beginner (初級)", "target_ja": "パーティーは とても にぎやかでした。", "romaji": "Paatii wa totemo nigiyaka deshita.", "tl_meaning": "Napakamasigla ng party.", "en_meaning": "The party was very lively.", "blank_q": "パーティー ␣ にぎやかでした。", "options": ["は (wa)", "に (ni)", "で (de)"], "chunks": ["パーティーは", "とても", "にぎやかでした。"], "tip_tl": "Nakaraang na-adj: '〜でした'.", "correct": 0}, {"id": "u09_q11", "unit": 9, "level": "Beginner (初級)", "target_ja": "けさ しんぶんを よみましたか？", "romaji": "Kesa shinbun wo yomimashita ka?", "tl_meaning": "Nagbasa ka ba ng diyaryo kaninang umaga?", "en_meaning": "Did you read the newspaper this morning?", "blank_q": "しんぶん ␣ よみましたか？", "options": ["を (o)", "に (ni)", "で (de)"], "chunks": ["けさ", "しんぶんを", "よみましたか？"], "tip_tl": "Diyaryo: 'しんぶんを'.", "correct": 0}, {"id": "u09_q12", "unit": 9, "level": "Beginner (初級)", "target_ja": "どこへ いきましたか？", "romaji": "Doko e ikimashita ka?", "tl_meaning": "Saan ka pumunta?", "en_meaning": "Where did you go?", "blank_q": "どこ ␣ いきましたか？", "options": ["へ (e)", "で (de)", "を (o)"], "chunks": ["どこへ", "いきましたか？", "Saan pumunta (nakaraan): 'どこへ いきましたか'."], "tip_tl": null, "correct": 0}, {"id": "u10_q01", "unit": 10, "level": "Beginner (初級)", "target_ja": "いっしょに たべませんか？", "romaji": "Isshoni tabemasen ka?", "tl_meaning": "Gusto mo bang kumain tayo sabay?", "en_meaning": "Would you like to eat together?", "blank_q": "いっしょ ␣ たべませんか？", "options": ["に (ni)", "で (de)", "と (to)"], "chunks": ["いっしょに", "ごはんを", "たべませんか？", "Ang '〜ませんか' ay ginagamit para sa magalang na pag-imbita."], "tip_tl": null, "correct": 0}, {"id": "u10_q02", "unit": 10, "level": "Beginner (初級)", "target_ja": "いいですね。いきましょう！", "romaji": "Ie desu ne. Ikimashou!", "tl_meaning": "Maganda 'yan! Tara, punta tayo!", "en_meaning": "Sounds good! Let's go!", "blank_q": "いいですね。 ␣", "options": ["いきましょう", "いきます", "いきました"], "chunks": ["いいですね。", "いきましょう！"], "tip_tl": "Pag-sang-ayon sa aya: '〜ましょう (Let's...)'.", "correct": 0}, {"id": "u10_q03", "unit": 10, "level": "Beginner (初級)", "target_ja": "すみません。ちょっと わかりません。", "romaji": "Sumimasen. Chotto wakarimasen.", "tl_meaning": "Patawad po. Hindi ko po masyadong naiintindihan.", "en_meaning": "Sorry, I don't quite understand.", "blank_q": "ちょっと ␣", "options": ["わかりません", "わかります", "わかりました"], "chunks": ["すみません。", "ちょっと", "わかりません。"], "tip_tl": "Magalang na pagtanggi/pag-amin: 'ちょっと わかりません'.", "correct": 0}, {"id": "u10_q04", "unit": 10, "level": "Beginner (初級)", "target_ja": "もう一度（いちど） おねがいします。", "romaji": "Mou ichido onegaishimasu.", "tl_meaning": "Paki-ulit po uli nang isa pa.", "en_meaning": "One more time, please.", "blank_q": "もう一度 ␣", "options": ["おねがいします", "ください", "です"], "chunks": ["もう一度", "おねがいします。"], "tip_tl": "Paki-ulit: 'もう一度 おねがいします'.", "correct": 0}, {"id": "u10_q05", "unit": 10, "level": "Beginner (初級)", "target_ja": "どうぞ こちらへ。", "romaji": "Douzo kochira e.", "tl_meaning": "Dito po kayo / Tuloy po kayo dito.", "en_meaning": "This way, please.", "blank_q": "こちら ␣", "options": ["へ (e)", "で (de)", "を (o)"], "chunks": ["どうぞ", "こちらへ。"], "tip_tl": "Paggabay ng daan: 'こちらへ (This way)'.", "correct": 0}, {"id": "u10_q06", "unit": 10, "level": "Beginner (初級)", "target_ja": "おだいじに。", "romaji": "Odaiji ni.", "tl_meaning": "Magpagaling ka agad (Get well soon).", "en_meaning": "Get well soon.", "blank_q": "おだいじ ␣", "options": ["に (ni)", "で (de)", "を (o)"], "chunks": ["おだいじに。"], "tip_tl": "Sa taong may sakit: 'おだいじに'.", "correct": 0}, {"id": "u10_q07", "unit": 10, "level": "Beginner (初級)", "target_ja": "いってきます！", "romaji": "Ittekimasu!", "tl_meaning": "Alis muna ako! / Papasok na ako!", "en_meaning": "I'm off!", "blank_q": "いって ␣", "options": ["きます", "いきます", "かえります"], "chunks": ["いってきます！"], "tip_tl": "Kapag aalis ng bahay: 'いってきます！'.", "correct": 0}, {"id": "u10_q08", "unit": 10, "level": "Beginner (初級)", "target_ja": "いってらっしゃい！", "romaji": "Itterasshai!", "tl_meaning": "Ingat ka! / Paalam!", "en_meaning": "Take care!", "blank_q": "いって ␣", "options": ["らっしゃい", "きます", "かえり"], "chunks": ["いってらっしゃい！"], "tip_tl": "Sagot sa aalis ng bahay: 'いってらっしゃい！'.", "correct": 0}, {"id": "u10_q09", "unit": 10, "level": "Beginner (初級)", "target_ja": "ただいま！", "romaji": "Tadaima!", "tl_meaning": "Nandito na ako! / Nakauwi na ako!", "en_meaning": "I'm home!", "blank_q": "ただいま ␣", "options": ["（なし）", "です", "ます"], "chunks": ["ただいま！"], "tip_tl": "Kapag dumating sa bahay: 'ただいま！'.", "correct": 0}, {"id": "u10_q10", "unit": 10, "level": "Beginner (初級)", "target_ja": "おかえりなさい！", "romaji": "Okaerinasai!", "tl_meaning": "Maligayang pagbabalik! / Tuloy ka!", "en_meaning": "Welcome home!", "blank_q": "おかえり ␣", "options": ["なさい", "ます", "です"], "chunks": ["おかえりなさい！"], "tip_tl": "Sagot sa dumating sa bahay: 'おかえりなさい！'.", "correct": 0}, {"id": "u10_q11", "unit": 10, "level": "Beginner (初級)", "target_ja": "いただきます！", "romaji": "Itadakimasu!", "tl_meaning": "Kain na tayo! (Bago kumain)", "en_meaning": "Bon appetit / Thank you for the food.", "blank_q": "いただき ␣", "options": ["ます", "でした", "です"], "chunks": ["いただきます！"], "tip_tl": "Bago kumain: 'いただきます！'.", "correct": 0}, {"id": "u10_q12", "unit": 10, "level": "Beginner (初級)", "target_ja": "ごちそうさまでした！", "romaji": "Gochisousama deshita!", "tl_meaning": "Salamat sa pagkain! (Pagkatapos kumain)", "en_meaning": "Thank you for the meal.", "blank_q": "ごちそうさま ␣", "options": ["でした", "です", "ます"], "chunks": ["ごちそうさまでした！"], "tip_tl": "Pagkatapos kumain: 'ごちそうさまでした！'.", "correct": 0}];
+
+const UNIT_META = [
+  {n:1,  jp:"自己紹介と「〜は〜です」",       particle:"は (wa) / です",              tl:"Pagpapakilala sa Sarili",            en:"Self-Introduction (Topic “wa”)"},
+  {n:2,  jp:"場所と存在「〜に います/あります」", particle:"に (ni) / います・あります", tl:"Lokasyon at Pag-iral",               en:"Location & Existence (“ni”)"},
+  {n:3,  jp:"日課と行動「〜で 〜します」",     particle:"で (de) / を (o) / します",   tl:"Aksyon sa Lugar",                    en:"Daily Actions (Place “de”)"},
+  {n:4,  jp:"移動と目的地「〜へ/に いきます」", particle:"へ (e) / に (ni) / いきます", tl:"Direksyon at Pupuntahan",            en:"Movement & Destination (“e/ni”)"},
+  {n:5,  jp:"時間と日時「〜に 〜します」",     particle:"に (ni) / から / まで",       tl:"Oras at Petsa",                      en:"Time & Schedule (“ni”)"},
+  {n:6,  jp:"対象と道具「〜で/〜と 〜します」", particle:"で (de) / と (to) / も (mo)", tl:"Kasangkapan at Kasama",              en:"Tools & Companions (“de”/“to”)"},
+  {n:7,  jp:"欲しいものと好き嫌い",           particle:"が (ga) / すきです / ほしいです", tl:"Gusto at Ayaw",                    en:"Likes, Dislikes & Wants (“ga”)"},
+  {n:8,  jp:"形容詞と状態「〜は 〜です」",     particle:"は (wa) / が (ga) / い・な",  tl:"Paglalarawan (Adjectives)",          en:"Adjectives & States"},
+  {n:9,  jp:"過去の出来事「〜ました/〜でした」", particle:"ました / でした",           tl:"Nakaraang Kilos",                    en:"Past Tense Events"},
+  {n:10, jp:"総合復習 & リアル会話応答",       particle:"助詞の総合判定 / あいづち",   tl:"Pang-araw-araw na Usapan",           en:"Review & Real Conversation"},
+];
+
+/* ==================== UI STRINGS ==================== */
+const STR = {
+  tl: {
+    brandName: "にほんご活字堂", brandSub: "JAPANESE FOR FILIPINOS · N5 · 120Q",
+    heroEyebrow: "JOSHI FOCUS · 5-STEP NA PARAAN",
+    heroTitle: "Simulan ang Nihongo<br>mula sa mismong ugat.",
+    heroDesc: "Pakinggan → Piliin ang joshi (助詞) → Ayusin → Bigkasin. 12 tanong bawat unit, 3-5 minuto lang. 10 unit, 120 tanong na nakatuon sa mga particle na madalas malito ang mga nagsisimula.",
+    weakTitle: "Weak Point Review", weakSub: "Balikan lang ang mga tanong na na-miss mo",
+    weakLabel: "Weak Point Review",
+    backBtn: "Bumalik",
+    backConfirm: "Babalik ka ba sa listahan ng unit? Hindi mase-save ang kasalukuyang progreso.",
+    step1Label: "STEP 1 — Pakinggan",
+    listenHint: "Huwag munang tingnan ang text — pakinggan muna ang pangungusap.<br>Pansinin ang tunog at ritmo ng Japanese.",
+    listenCount: n => `Bilang ng pakikinig: ${n}`,
+    toStep2Btn: "Piliin ang joshi →",
+    step2Label: "STEP 2 — Piliin ang Tamang Joshi (助詞)",
+    step3Label: "STEP 3 — Ayusin ang Pangungusap",
+    assemblyPlaceholder: "Dito lalabas ang mga chunk na na-tap mo",
+    assemblyCaption: "I-tap ang mga chunk sa tamang pagkakasunod-sunod para makumpleto ang pangungusap",
+    resetChunksBtn: "Ulitin",
+    step4Label: "STEP 4 — Bigkasin nang Malakas",
+    nextQBtn: "Nabigkas ko na → Susunod",
+    tipPrefix: "native-real tip：",
+    tipLangNote: "(Tagalog)",
+    complete100: "PERFECT", completeDefault: "TAPOS",
+    completeMeta: (pct,mm,ss) => `Tama: ${pct}%　·　Oras: ${mm}m ${ss}s`,
+    retryWrongBtn: "Balikan ang mga mali sa round na ito",
+    toHomeBtn: "Bumalik sa listahan ng unit",
+    weakModeLabel: "Weak Point Review",
+    weakModeSuffix: " (mga mali lang)",
+    settingsTitle: "Voice Settings",
+    speedLabel: "Bilis ng Boses", voiceLabel: "Boses (Japanese)",
+    spdSlow: "Mabagal", spdNormal: "Normal", spdFast: "Mabilis",
+    testVoiceBtn: "▶ I-test",
+    voiceWarn: "Kung wala kang makitang Japanese voice, karaniwang dahil ito sa browser o device mo — subukan sa Chrome sa Android/Windows.",
+  },
+  en: {
+    brandName: "Nihongo Reboot Lab", brandSub: "JAPANESE FOR FILIPINOS · N5 · 120Q",
+    heroEyebrow: "PARTICLE FOCUS · 5-STEP METHOD",
+    heroTitle: "Build your Japanese<br>from the ground up.",
+    heroDesc: "Listen → Choose the particle (助詞) → Rearrange → Speak. 12 questions per unit, 3-5 minutes. 10 units, 120 questions focused on the particles beginners mix up most.",
+    weakTitle: "Weak Point Review", weakSub: "Redo only the questions you missed",
+    weakLabel: "Weak Point Review",
+    backBtn: "Back",
+    backConfirm: "Return to the unit list? Your current progress won't be saved.",
+    step1Label: "STEP 1 — Listen",
+    listenHint: "Listen first without looking at the text.<br>Pay attention to the sound and rhythm of Japanese.",
+    listenCount: n => `Times played: ${n}`,
+    toStep2Btn: "Choose the particle →",
+    step2Label: "STEP 2 — Choose the Correct Particle (助詞)",
+    step3Label: "STEP 3 — Rearrange the Sentence",
+    assemblyPlaceholder: "Tapped chunks will appear here",
+    assemblyCaption: "Tap the chunks in order to complete the sentence",
+    resetChunksBtn: "Reset",
+    step4Label: "STEP 4 — Read it Out Loud",
+    nextQBtn: "I said it out loud → Next",
+    tipPrefix: "native-real tip：",
+    tipLangNote: "(in Tagalog)",
+    complete100: "PERFECT", completeDefault: "DONE",
+    completeMeta: (pct,mm,ss) => `Score: ${pct}%　·　Time: ${mm}m ${ss}s`,
+    retryWrongBtn: "Review this round's weak points",
+    toHomeBtn: "Back to unit list",
+    weakModeLabel: "Weak Point Review",
+    weakModeSuffix: " (weak points only)",
+    settingsTitle: "Voice Settings",
+    speedLabel: "Voice Speed", voiceLabel: "Voice (Japanese)",
+    spdSlow: "Slow", spdNormal: "Normal", spdFast: "Fast",
+    testVoiceBtn: "▶ Test",
+    voiceWarn: "If no Japanese voice shows up, it's usually a browser/device limitation — try Chrome on Android or Windows.",
+  }
+};
+
+/* ==================== LANG STATE ==================== */
+let currentLang = localStorage.getItem('jp120_lang') || 'tl';
+
+function T(key, ...args){
+  const v = STR[currentLang][key];
+  return typeof v === 'function' ? v(...args) : v;
+}
+
+function applyStaticStrings(){
+  document.getElementById('brandName').textContent = T('brandName');
+  document.getElementById('brandSub').textContent = T('brandSub');
+  document.getElementById('heroEyebrow').textContent = T('heroEyebrow');
+  document.getElementById('heroTitle').innerHTML = T('heroTitle');
+  document.getElementById('heroDesc').textContent = T('heroDesc');
+  document.getElementById('weakTitle').textContent = T('weakTitle');
+  document.getElementById('weakSub').textContent = T('weakSub');
+  document.getElementById('headerBackBtn').textContent = T('backBtn');
+  document.getElementById('step1Label').textContent = T('step1Label');
+  document.getElementById('listenHint').innerHTML = T('listenHint');
+  document.getElementById('toStep2Btn').textContent = T('toStep2Btn');
+  document.getElementById('step2Label').textContent = T('step2Label');
+  document.getElementById('step3Label').textContent = T('step3Label');
+  document.getElementById('assemblyCaption').textContent = T('assemblyCaption');
+  document.getElementById('resetChunksBtn').textContent = T('resetChunksBtn');
+  document.getElementById('step4Label').textContent = T('step4Label');
+  document.getElementById('nextQBtn').textContent = T('nextQBtn');
+  document.getElementById('toHomeBtn').textContent = T('toHomeBtn');
+  document.getElementById('retryWrongBtn').textContent = T('retryWrongBtn');
+  document.getElementById('settingsTitle').textContent = T('settingsTitle');
+  document.getElementById('speedLabel').textContent = T('speedLabel');
+  document.getElementById('voiceLabel').textContent = T('voiceLabel');
+  document.getElementById('spdSlow').textContent = T('spdSlow');
+  document.getElementById('spdNormal').textContent = T('spdNormal');
+  document.getElementById('spdFast').textContent = T('spdFast');
+  document.getElementById('testVoiceBtn').textContent = T('testVoiceBtn');
+  document.getElementById('voiceWarn').textContent = T('voiceWarn');
+  document.getElementById('langTlBtn').classList.toggle('active', currentLang === 'tl');
+  document.getElementById('langEnBtn').classList.toggle('active', currentLang === 'en');
+}
+
+document.getElementById('langTlBtn').addEventListener('click', () => setLang('tl'));
+document.getElementById('langEnBtn').addEventListener('click', () => setLang('en'));
+function setLang(lang){
+  currentLang = lang;
+  localStorage.setItem('jp120_lang', lang);
+  applyStaticStrings();
+  const active = document.querySelector('.screen.active');
+  if(active && active.id === 'screen-home') renderHome();
+  if(active && active.id === 'screen-lesson'){ renderProgressDots(); showStepQuestion(); }
+  if(active && active.id === 'screen-complete') refreshCompleteTexts();
+}
+
+/* ==================== STORAGE ==================== */
+const LS_KEY = "jp120_progress_v1";
+function loadProgress(){
+  try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {mastered:{}, weak:{}}; }
+  catch(e){ return {mastered:{}, weak:{}}; }
+}
+function saveProgress(p){ localStorage.setItem(LS_KEY, JSON.stringify(p)); }
+let progress = loadProgress();
+
+/* ==================== AUDIO (Japanese TTS + 437Hz brand tone) ==================== */
+let voices = [];
+let voicePrefs = JSON.parse(localStorage.getItem('jp120_voice_prefs') || '{}');
+if(voicePrefs.speed === undefined) voicePrefs.speed = 0.90;
+
+function refreshVoices(){
+  voices = window.speechSynthesis ? window.speechSynthesis.getVoices().filter(v => v.lang && v.lang.startsWith('ja')) : [];
+  populateVoiceSelect();
+}
+if('speechSynthesis' in window){
+  refreshVoices();
+  window.speechSynthesis.onvoiceschanged = refreshVoices;
+}
+function populateVoiceSelect(){
+  const sel = document.getElementById('voiceSelect');
+  if(!sel) return;
+  sel.innerHTML = '';
+  if(voices.length === 0){
+    const opt = document.createElement('option');
+    opt.textContent = '(default / walang Japanese voice na nakita)';
+    sel.appendChild(opt);
+    return;
+  }
+  voices.forEach((v, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${v.name} (${v.lang})`;
+    sel.appendChild(opt);
+  });
+  if(voicePrefs.voiceName){
+    const idx = voices.findIndex(v => v.name === voicePrefs.voiceName);
+    if(idx >= 0) sel.value = idx;
+  }
+}
+function getSelectedVoice(){
+  if(voicePrefs.voiceName){
+    const found = voices.find(v => v.name === voicePrefs.voiceName);
+    if(found) return found;
+  }
+  return voices[0];
+}
+function speak(text, onEnd){
+  if(!('speechSynthesis' in window)){ if(onEnd) onEnd(); return; }
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const v = getSelectedVoice();
+  if(v) u.voice = v;
+  u.lang = 'ja-JP';
+  u.rate = voicePrefs.speed || 0.90;
+  if(onEnd) u.onend = onEnd;
+  window.speechSynthesis.speak(u);
+}
+function playBrandTone(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.value = 437;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.9);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime + 0.9);
+  }catch(e){}
+}
+
+/* ---- Settings modal wiring ---- */
+const settingsOverlay = document.getElementById('settingsOverlay');
+document.getElementById('settingsBtn').addEventListener('click', () => {
+  settingsOverlay.classList.add('open');
+  document.getElementById('speedRange').value = voicePrefs.speed;
+  document.getElementById('speedVal').textContent = voicePrefs.speed.toFixed(2) + 'x';
+  updateSpeedPresetHighlight();
+});
+document.getElementById('closeSettings').addEventListener('click', () => settingsOverlay.classList.remove('open'));
+settingsOverlay.addEventListener('click', (e) => { if(e.target === settingsOverlay) settingsOverlay.classList.remove('open'); });
+
+const speedRange = document.getElementById('speedRange');
+speedRange.addEventListener('input', () => {
+  voicePrefs.speed = parseFloat(speedRange.value);
+  document.getElementById('speedVal').textContent = voicePrefs.speed.toFixed(2) + 'x';
+  localStorage.setItem('jp120_voice_prefs', JSON.stringify(voicePrefs));
+  updateSpeedPresetHighlight();
+});
+function updateSpeedPresetHighlight(){
+  document.querySelectorAll('.speed-presets button').forEach(b => {
+    b.classList.toggle('active', Math.abs(parseFloat(b.dataset.speed) - voicePrefs.speed) < 0.02);
+  });
+}
+document.querySelectorAll('.speed-presets button').forEach(b => {
+  b.addEventListener('click', () => {
+    voicePrefs.speed = parseFloat(b.dataset.speed);
+    speedRange.value = voicePrefs.speed;
+    document.getElementById('speedVal').textContent = voicePrefs.speed.toFixed(2) + 'x';
+    localStorage.setItem('jp120_voice_prefs', JSON.stringify(voicePrefs));
+    updateSpeedPresetHighlight();
+  });
+});
+document.getElementById('voiceSelect').addEventListener('change', (e) => {
+  const idx = parseInt(e.target.value);
+  if(voices[idx]){
+    voicePrefs.voiceName = voices[idx].name;
+    localStorage.setItem('jp120_voice_prefs', JSON.stringify(voicePrefs));
+  }
+});
+document.getElementById('testVoiceBtn').addEventListener('click', () => {
+  speak("こんにちは。わたしは たろーです。");
+});
+
+/* ==================== NAV ==================== */
+const screens = {
+  home: document.getElementById('screen-home'),
+  lesson: document.getElementById('screen-lesson'),
+  complete: document.getElementById('screen-complete'),
+};
+const headerBackBtn = document.getElementById('headerBackBtn');
+function showScreen(name){
+  Object.values(screens).forEach(s => s.classList.remove('active'));
+  screens[name].classList.add('active');
+  headerBackBtn.style.display = (name === 'home') ? 'none' : 'block';
+  window.scrollTo(0,0);
+}
+headerBackBtn.addEventListener('click', () => { if(confirm(T('backConfirm'))) renderHome(); });
+
+/* ==================== HOME RENDER ==================== */
+function unitStats(unitN){
+  const qs = QUESTIONS.filter(q => q.unit === unitN);
+  const masteredCount = qs.filter(q => progress.mastered[q.id]).length;
+  return { total: qs.length, mastered: masteredCount };
+}
+function totalWeakCount(){ return Object.keys(progress.weak).length; }
+
+function renderHome(){
+  const list = document.getElementById('unitList');
+  list.innerHTML = '';
+  UNIT_META.forEach(u => {
+    const stats = unitStats(u.n);
+    const pct = Math.round((stats.mastered/stats.total)*100);
+    const row = document.createElement('div');
+    row.className = 'unit-row';
+    row.innerHTML = `
+      <div class="unit-seal ${pct===100?'mastered':''}">${pct===100?'✓':String(u.n).padStart(2,'0')}</div>
+      <div class="unit-body">
+        <div class="unit-theme">Unit ${u.n} — ${u.jp}</div>
+        <div class="unit-particle">${u.particle}</div>
+        <div class="unit-desc">${currentLang === 'tl' ? u.tl : u.en}</div>
+        <div class="unit-track"><div class="unit-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="unit-count">${stats.mastered}/${stats.total}</div>
+    `;
+    row.addEventListener('click', () => startUnit(u.n));
+    list.appendChild(row);
+  });
+
+  const weakCta = document.getElementById('weakCta');
+  const wc = totalWeakCount();
+  document.getElementById('weakCount').textContent = wc;
+  weakCta.style.display = wc > 0 ? 'flex' : 'none';
+  weakCta.onclick = () => startWeakReview();
+
+  applyStaticStrings();
+  showScreen('home');
+}
+
+/* ==================== LESSON STATE ==================== */
+let session = { queue: [], idx: 0, correctCount: 0, wrongIds: [], unitLabel: '', isWeakMode:false, startTime:0 };
+
+function startUnit(unitN){
+  const qs = QUESTIONS.filter(q => q.unit === unitN);
+  const meta = UNIT_META.find(u => u.n === unitN);
+  session = { queue: qs, idx:0, correctCount:0, wrongIds:[], unitLabel:`Unit ${unitN} — ${meta.jp}`, isWeakMode:false, startTime:Date.now() };
+  runLesson();
+}
+function startWeakReview(){
+  const ids = Object.keys(progress.weak);
+  const qs = QUESTIONS.filter(q => ids.includes(q.id));
+  if(qs.length === 0) return;
+  session = { queue: qs, idx:0, correctCount:0, wrongIds:[], unitLabel:T('weakModeLabel'), isWeakMode:true, startTime:Date.now() };
+  runLesson();
+}
+
+function runLesson(){
+  document.getElementById('lessonUnitTag').textContent = session.unitLabel;
+  renderProgressDots();
+  showStepQuestion();
+  showScreen('lesson');
+}
+
+function renderProgressDots(){
+  const wrap = document.getElementById('progressDots');
+  wrap.innerHTML = '';
+  session.queue.forEach((q, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if(i < session.idx) d.classList.add(session.wrongIds.includes(q.id) ? 'wrong' : 'done');
+    if(i === session.idx) d.classList.add('now');
+    wrap.appendChild(d);
+  });
+}
+
+/* ==================== QUESTION FLOW ==================== */
+let chunkState = { pool: [], placed: [], correctSeq: [] };
+let step2Answered = false;
+
+function currentQ(){ return session.queue[session.idx]; }
+
+function showStepQuestion(){
+  const panes = ['step1','step2','step3','step4'];
+  panes.forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('step1').style.display = 'block';
+  applyStaticStrings();
+  setupStep1();
+}
+
+/* --- STEP 1: listening --- */
+let listenCount = 0;
+function setupStep1(){
+  const q = currentQ();
+  listenCount = 0;
+  document.getElementById('listenCount').textContent = '';
+  document.getElementById('toStep2Btn').disabled = true;
+  const playBtn = document.getElementById('playBtn');
+  playBtn.onclick = () => {
+    playBtn.classList.add('playing');
+    speak(q.target_ja, () => {
+      playBtn.classList.remove('playing');
+      listenCount++;
+      document.getElementById('listenCount').textContent = T('listenCount', listenCount);
+      document.getElementById('toStep2Btn').disabled = false;
+    });
+  };
+  document.getElementById('toStep2Btn').onclick = () => {
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+    setupStep2();
+  };
+}
+
+/* --- STEP 2: particle fill-in-the-blank --- */
+function setupStep2(){
+  const q = currentQ();
+  step2Answered = false;
+  const parts = q.blank_q.split('␣');
+  const blankHtml = document.getElementById('blankSentence');
+  blankHtml.innerHTML = `${parts[0] || ''}<span class="slot" id="slotMark">?</span>${parts[1] || ''}`;
+
+  const list = document.getElementById('choiceList');
+  list.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const el = document.createElement('div');
+    el.className = 'choice';
+    el.textContent = opt;
+    el.addEventListener('click', () => {
+      if(step2Answered) return;
+      step2Answered = true;
+      const cards = list.querySelectorAll('.choice');
+      cards.forEach(c => c.classList.add('disabled'));
+      const slot = document.getElementById('slotMark');
+      if(i === q.correct){
+        el.classList.add('correct');
+        slot.textContent = opt.split(' ')[0];
+        slot.classList.add('filled');
+      } else {
+        el.classList.add('wrong');
+        cards[q.correct].classList.add('correct');
+        slot.textContent = q.options[q.correct].split(' ')[0];
+        slot.classList.add('filled');
+        markWrong(q);
+      }
+      setTimeout(() => {
+        document.getElementById('step2').style.display = 'none';
+        document.getElementById('step3').style.display = 'block';
+        setupStep3();
+      }, 750);
+    });
+    list.appendChild(el);
+  });
+}
+
+/* --- STEP 3: chunk reorder (movable type) --- */
+function setupStep3(){
+  const q = currentQ();
+  if(q.chunks.length <= 1){
+    // fixed expression, nothing to reorder — auto-advance
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('step4').style.display = 'block';
+    setupStep4();
+    return;
+  }
+  chunkState.correctSeq = q.chunks.slice();
+  chunkState.placed = [];
+  chunkState.pool = q.chunks.map((c,i) => ({text:c, key:i, used:false}));
+  shuffleUntilDifferent(chunkState.pool);
+  renderAssembly();
+}
+function shuffleUntilDifferent(arr){
+  if(arr.length <= 1) return;
+  const original = arr.map(a=>a.text).join('|');
+  let tries = 0;
+  do{
+    for(let i = arr.length-1; i>0; i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    tries++;
+  } while(arr.map(a=>a.text).join('|') === original && tries < 8);
+}
+function renderAssembly(){
+  const line = document.getElementById('assemblyLine');
+  const pool = document.getElementById('typePool');
+  line.innerHTML = '';
+  pool.innerHTML = '';
+
+  if(chunkState.placed.length === 0){
+    line.classList.remove('filled');
+    line.innerHTML = `<span class="assembly-placeholder">${T('assemblyPlaceholder')}</span>`;
+  } else {
+    line.classList.add('filled');
+    chunkState.placed.forEach(p => {
+      const b = document.createElement('span');
+      b.className = 'type-block used-slot jp';
+      b.textContent = p.text;
+      b.addEventListener('click', () => {
+        if(chunkState.placed[chunkState.placed.length-1].key === p.key){
+          chunkState.placed.pop();
+          const orig = chunkState.pool.find(x => x.key === p.key);
+          orig.used = false;
+          renderAssembly();
+        }
+      });
+      line.appendChild(b);
+    });
+  }
+
+  chunkState.pool.forEach(p => {
+    const b = document.createElement('span');
+    b.className = 'type-block jp' + (p.used ? ' placed' : '');
+    b.textContent = p.text;
+    if(!p.used){
+      b.addEventListener('click', () => {
+        p.used = true;
+        chunkState.placed.push(p);
+        renderAssembly();
+        if(chunkState.placed.length === chunkState.pool.length){
+          evaluateAssembly();
+        }
+      });
+    }
+    pool.appendChild(b);
+  });
+}
+document.getElementById('resetChunksBtn').addEventListener('click', () => {
+  chunkState.pool.forEach(p => p.used = false);
+  chunkState.placed = [];
+  renderAssembly();
+});
+function evaluateAssembly(){
+  const q = currentQ();
+  const built = chunkState.placed.map(p => p.text).join('|');
+  const correct = chunkState.correctSeq.join('|');
+  const ok = built === correct;
+  const line = document.getElementById('assemblyLine');
+  line.style.borderColor = ok ? 'var(--good)' : 'var(--bad)';
+  if(!ok) markWrong(q);
+  setTimeout(() => {
+    line.style.borderColor = '';
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('step4').style.display = 'block';
+    setupStep4();
+  }, 650);
+}
+
+/* --- STEP 4: reveal + shadow reading --- */
+function setupStep4(){
+  const q = currentQ();
+  document.getElementById('revealJp').textContent = q.target_ja;
+  document.getElementById('revealRomaji').textContent = q.romaji;
+  document.getElementById('revealMeaning').textContent = currentLang === 'tl' ? q.tl_meaning : q.en_meaning;
+  document.getElementById('revealTip').innerHTML = `<b>${T('tipPrefix')}</b>${q.tip_tl || ''}<span class="tip-lang-note">${T('tipLangNote')}</span>`;
+  document.getElementById('replayBtn').onclick = () => speak(q.target_ja);
+  document.getElementById('nextQBtn').onclick = () => {
+    document.getElementById('step4').style.display = 'none';
+    advanceQuestion(q);
+  };
+}
+
+function markWrong(q){
+  if(!session.wrongIds.includes(q.id)) session.wrongIds.push(q.id);
+  progress.weak[q.id] = true;
+  saveProgress(progress);
+}
+
+function advanceQuestion(q){
+  if(!session.wrongIds.includes(q.id)){
+    session.correctCount++;
+    progress.mastered[q.id] = true;
+    delete progress.weak[q.id];
+    saveProgress(progress);
+  }
+  session.idx++;
+  if(session.idx >= session.queue.length){
+    finishSession();
+  } else {
+    renderProgressDots();
+    showStepQuestion();
+  }
+}
+
+/* ==================== COMPLETE SCREEN ==================== */
+let lastCompleteStats = null;
+function finishSession(){
+  renderProgressDots();
+  playBrandTone();
+  const total = session.queue.length;
+  const correct = session.correctCount;
+  const pct = Math.round((correct/total)*100);
+  const seconds = Math.round((Date.now() - session.startTime)/1000);
+  const mm = Math.floor(seconds/60), ss = seconds%60;
+  lastCompleteStats = { total, correct, pct, mm, ss };
+
+  refreshCompleteTexts();
+
+  const retryBtn = document.getElementById('retryWrongBtn');
+  if(session.wrongIds.length > 0){
+    retryBtn.style.display = 'block';
+    retryBtn.onclick = () => {
+      const qs = QUESTIONS.filter(q => session.wrongIds.includes(q.id));
+      session = { queue: qs, idx:0, correctCount:0, wrongIds:[], unitLabel: session.unitLabel + T('weakModeSuffix'), isWeakMode:true, startTime:Date.now() };
+      runLesson();
+    };
+  } else {
+    retryBtn.style.display = 'none';
+  }
+  document.getElementById('toHomeBtn').onclick = renderHome;
+  showScreen('complete');
+}
+function refreshCompleteTexts(){
+  if(!lastCompleteStats) return;
+  const {total, correct, pct, mm, ss} = lastCompleteStats;
+  document.getElementById('completeSealText').textContent = pct === 100 ? T('complete100') : T('completeDefault');
+  document.getElementById('completeUnitName').textContent = session.unitLabel;
+  document.getElementById('completeScore').textContent = `${correct} / ${total}`;
+  document.getElementById('completeMeta').textContent = T('completeMeta', pct, mm, ss);
+  document.getElementById('retryWrongBtn').textContent = T('retryWrongBtn');
+  document.getElementById('toHomeBtn').textContent = T('toHomeBtn');
+}
+
+/* ==================== INIT ==================== */
+applyStaticStrings();
+renderHome();
+</script>
+</body>
+</html>

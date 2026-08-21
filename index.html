@@ -1025,6 +1025,13 @@ function getSelectedVoice(){
   }
   return voices[0];
 }
+/* TTS reads the bracket-furigana source text as-is, which double-reads
+   words like 本（ほん）— the kanji AND the kana reading. Strip the
+   （かな） part before handing text to speechSynthesis; the on-screen
+   text (with the reading visible) is untouched. */
+function stripFuriganaForSpeech(text){
+  return text.replace(/([\u4E00-\u9FFF\u30A0-\u30FF\u30FCー]+)（([\u3040-\u309F\u30FCー]+)）/g, '$1');
+}
 function speak(text, onEnd){
   if(!('speechSynthesis' in window)){ if(onEnd) onEnd(); return; }
   window.speechSynthesis.cancel();
@@ -1237,7 +1244,7 @@ function setupStep1(){
   const playBtn = document.getElementById('playBtn');
   playBtn.onclick = () => {
     playBtn.classList.add('playing');
-    speak(q.target_ja, () => {
+    speak(stripFuriganaForSpeech(q.target_ja), () => {
       playBtn.classList.remove('playing');
       listenCount++;
       document.getElementById('listenCount').textContent = T('listenCount', listenCount);
@@ -1391,7 +1398,7 @@ function setupStep4(){
   document.getElementById('revealRomaji').textContent = q.romaji;
   document.getElementById('revealMeaning').textContent = currentLang === 'tl' ? q.tl_meaning : q.en_meaning;
   document.getElementById('revealTip').innerHTML = `<b>${T('tipPrefix')}</b>${q.tip_tl || ''}<span class="tip-lang-note">${T('tipLangNote')}</span>`;
-  document.getElementById('replayBtn').onclick = () => speak(q.target_ja);
+  document.getElementById('replayBtn').onclick = () => speak(stripFuriganaForSpeech(q.target_ja));
   document.getElementById('nextQBtn').onclick = () => {
     document.getElementById('step4').style.display = 'none';
     advanceQuestion(q);

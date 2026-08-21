@@ -1026,11 +1026,16 @@ function getSelectedVoice(){
   return voices[0];
 }
 /* TTS reads the bracket-furigana source text as-is, which double-reads
-   words like 本（ほん）— the kanji AND the kana reading. Strip the
-   （かな） part before handing text to speechSynthesis; the on-screen
-   text (with the reading visible) is untouched. */
+   words like 本（ほん）— the kanji AND the kana reading — and also words
+   with okurigana like 新しい（あたらしい）, where the base word isn't pure
+   kanji so a kanji-only pattern misses it. Two passes: standard
+   kanji(+okurigana)（かな） pairs, and the reversed かな（漢字） pairs
+   used for a few words (e.g. きもの（着物）). Both keep the base text
+   (already fully readable) and drop the parenthetical. */
 function stripFuriganaForSpeech(text){
-  return text.replace(/([\u4E00-\u9FFF\u30A0-\u30FF\u30FCー]+)（([\u3040-\u309F\u30FCー]+)）/g, '$1');
+  return text
+    .replace(/([^\s（）]*[\u4E00-\u9FFF][^\s（）]*)（([\u3040-\u309F\u30FCー]+)）/g, '$1')
+    .replace(/([\u3040-\u309F\u30FCー]+)（([\u4E00-\u9FFF]+)）/g, '$1');
 }
 function speak(text, onEnd){
   if(!('speechSynthesis' in window)){ if(onEnd) onEnd(); return; }
